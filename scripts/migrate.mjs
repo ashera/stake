@@ -55,6 +55,26 @@ try {
   } else if (email || password) {
     console.warn("[migrate] Set BOTH ADMIN_EMAIL and ADMIN_PASSWORD to seed an admin.");
   }
+
+  // 3. Default deal terms — only when the table is empty, so admin edits made in
+  //    /admin/deal are never overwritten by a later deploy. Keep in sync with
+  //    DEFAULT_DEAL_TERMS in lib/deal.ts.
+  const { rows: dt } = await client.query(`SELECT COUNT(*)::int AS n FROM deal_terms`);
+  if (dt[0].n === 0) {
+    const defaults = [
+      ["Your share of net-new revenue", "30", "%", 0],
+      ["Revenue baseline at start", "$0", null, 1],
+      ["Active term", "24", "mo", 2],
+      ["Equity required", "None", null, 3],
+    ];
+    for (const [label, value, suffix, position] of defaults) {
+      await client.query(
+        `INSERT INTO deal_terms (label, value, suffix, position) VALUES ($1, $2, $3, $4)`,
+        [label, value, suffix, position]
+      );
+    }
+    console.log("[migrate] Seeded default deal terms.");
+  }
 } catch (err) {
   console.error("[migrate] Failed:", err);
   process.exit(1);

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import LoginForm from "./LoginForm";
@@ -12,10 +13,10 @@ export default async function LoginPage() {
   return (
     <div className="auth-wrap">
       <div className="auth-card">
-        <div className="brand">
+        <Link href="/" className="brand">
           <span className="dot" />
           Stake <small>admin</small>
-        </div>
+        </Link>
         <h1>Sign in</h1>
         <p className="lede">Admin access to the concierge dashboard.</p>
         <LoginForm />

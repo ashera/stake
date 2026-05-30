@@ -142,6 +142,14 @@ existing account.) Sign in at `/login`; the dashboard lives at `/admin`.
 From **Admin → Users** you can add users, flag/unflag admin, and delete users.
 Guardrails: you can't demote or delete yourself, or remove the last admin.
 
+### Deal terms
+
+**Admin → Deal terms** edits the parameters in the "shape of the deal" box on the
+landing page (share %, baseline, term, etc.) — add/edit/reorder/delete. They're
+stored in the `deal_terms` table and seeded with defaults on first deploy. The
+landing page reads them live, falling back to `DEFAULT_DEAL_TERMS` in
+`lib/deal.ts` if the database is empty or unreachable.
+
 ## Notes
 
 - The deal terms shown (30% / $0 baseline / 24 months) are illustrative — match

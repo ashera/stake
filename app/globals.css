@@ -29,7 +29,7 @@ body::before{
 .wrap{max-width:1100px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
 
 nav{display:flex;justify-content:space-between;align-items:center;padding:26px 0;border-bottom:1px solid var(--rule)}
-.brand{font-family:var(--serif);font-weight:600;font-size:25px;letter-spacing:-.5px;display:flex;align-items:center;gap:9px}
+.brand{font-family:var(--serif);font-weight:600;font-size:25px;letter-spacing:-.5px;display:flex;align-items:center;gap:9px;color:var(--bone);text-decoration:none}
 .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--acid);box-shadow:0 0 14px rgba(198,242,78,.7)}
 .brand small{font-family:var(--sans);font-weight:500;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--bone-dim);border:1px solid var(--rule);padding:3px 7px;border-radius:20px}
 nav a.nav-login{font-weight:600;font-size:15px;color:var(--bone);text-decoration:none;padding:9px 18px;border-radius:40px;border:1px solid var(--rule);transition:border-color .2s,background .2s}
@@ -190,6 +190,20 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
 .ta-right{text-align:right}
 .actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 .you{margin-left:10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--bone-dim);border:1px solid var(--rule);padding:2px 7px;border-radius:14px}
+
+/* deal terms management */
+.admin-main .lede code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:rgba(244,239,230,.07);border:1px solid var(--rule);border-radius:5px;padding:1px 6px;color:var(--bone)}
+.deal-rows{display:flex;flex-direction:column;gap:12px;margin-bottom:30px}
+.deal-row{display:grid;grid-template-columns:1fr 120px 120px auto;gap:14px;align-items:end;border:1px solid var(--rule);border-radius:14px;padding:18px;background:var(--ink-2)}
+.deal-row .field{margin-bottom:0}
+.deal-row-actions{display:flex;gap:6px;align-items:center}
+.deal-row-new{background:transparent;border:none;padding:0}
+.user-form .deal-row-new .field label{font-weight:600}
+
+@media(max-width:760px){
+  .deal-row{grid-template-columns:1fr 1fr;align-items:start}
+  .deal-row-actions{grid-column:1 / -1;justify-content:flex-start;flex-wrap:wrap}
+}
 
 @media(max-width:600px){
   .auth-card{padding:30px}

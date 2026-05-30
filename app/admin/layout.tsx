@@ -15,13 +15,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="admin-shell">
       <nav className="admin-nav">
-        <div className="brand">
+        <Link href="/" className="brand">
           <span className="dot" />
           Stake <small>admin</small>
-        </div>
+        </Link>
         <div className="admin-links">
           <Link href="/admin">Applications</Link>
           <Link href="/admin/users">Users</Link>
+          <Link href="/admin/deal">Deal terms</Link>
+          <Link href="/">Home</Link>
         </div>
         <div className="admin-who">
           <span>{user.email}</span>

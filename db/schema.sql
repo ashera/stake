@@ -38,3 +38,18 @@ CREATE TABLE IF NOT EXISTS sessions (
 
 CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions (user_id);
 CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON sessions (expires_at);
+
+-- Deal terms — the parameters shown in the "shape of the deal" box on the
+-- landing page. Editable from /admin/deal; seeded with defaults on first deploy.
+-- `value` is the headline (e.g. "30", "$0", "None"); `suffix` is the small unit
+-- after it (e.g. "%", "mo"). `position` controls display order.
+CREATE TABLE IF NOT EXISTS deal_terms (
+  id         BIGSERIAL PRIMARY KEY,
+  label      TEXT        NOT NULL,
+  value      TEXT        NOT NULL,
+  suffix     TEXT,
+  position   INTEGER     NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS deal_terms_position_idx ON deal_terms (position, id);

@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
+import { getDealTerms } from "@/lib/deal";
 import ApplyForm from "./ApplyForm";
 
 export default async function Home() {
-  const user = await getCurrentUser();
+  const [user, dealTerms] = await Promise.all([getCurrentUser(), getDealTerms()]);
 
   return (
     <div className="wrap">
       <nav>
-        <div className="brand">
+        <Link href="/" className="brand">
           <span className="dot" />
           Stake
-        </div>
+        </Link>
         {user ? (
           user.isAdmin ? (
             <Link className="nav-account" href="/admin">
@@ -120,26 +121,15 @@ export default async function Home() {
             </p>
           </div>
           <div className="terms">
-            <div className="term">
-              <span className="k">Your share of net-new revenue</span>
-              <span className="v">
-                30<small>%</small>
-              </span>
-            </div>
-            <div className="term">
-              <span className="k">Revenue baseline at start</span>
-              <span className="v">$0</span>
-            </div>
-            <div className="term">
-              <span className="k">Active term</span>
-              <span className="v">
-                24<small>mo</small>
-              </span>
-            </div>
-            <div className="term">
-              <span className="k">Equity required</span>
-              <span className="v">None</span>
-            </div>
+            {dealTerms.map((t, i) => (
+              <div className="term" key={t.id ?? i}>
+                <span className="k">{t.label}</span>
+                <span className="v">
+                  {t.value}
+                  {t.suffix && <small>{t.suffix}</small>}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
