@@ -142,6 +142,16 @@ existing account.) Sign in at `/login`; the dashboard lives at `/admin`.
 From **Admin → Users** you can add users, flag/unflag admin, and delete users.
 Guardrails: you can't demote or delete yourself, or remove the last admin.
 
+### Products
+
+**Admin → Products** manages the live opportunities shown on the landing page
+(name, category, badge, description, and the Stage / mandate / lever / deal meta
+rows). New products start as **unpublished drafts** — only published products
+appear publicly. Add/edit/reorder/delete, toggle Published, then Save. Stored in
+the `products` table, seeded with the Frockd pilot on first deploy; the landing
+page falls back to `DEFAULT_PRODUCTS` in `lib/products.ts` if the DB is empty or
+unreachable. Description supports multiple paragraphs (separate with a blank line).
+
 ### Deal terms
 
 **Admin → Deal terms** edits the parameters in the "shape of the deal" box on the

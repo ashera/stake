@@ -82,6 +82,7 @@ section.how{padding:90px 0}
 .term .v small{font-family:var(--sans);font-size:13px;color:var(--bone-dim)}
 
 .opp{padding:90px 0}
+.opp-cards{display:flex;flex-direction:column;gap:24px}
 .opp-card{border:1px solid var(--rule);border-radius:22px;overflow:hidden;background:linear-gradient(135deg,rgba(198,242,78,.06),transparent)}
 .opp-top{padding:30px 34px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
 .badge{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;color:var(--ink);background:var(--acid);padding:5px 12px;border-radius:30px}
@@ -204,6 +205,15 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
   .deal-row{grid-template-columns:1fr 1fr;align-items:start}
   .deal-row-actions{grid-column:1 / -1;justify-content:flex-start;flex-wrap:wrap}
 }
+
+/* products management */
+.products-head{display:flex;justify-content:flex-end;margin-bottom:20px}
+.product-cards{display:flex;flex-direction:column;gap:20px}
+.product-card{border:1px solid var(--rule);border-radius:18px;padding:24px;background:var(--ink-2)}
+.product-card.is-draft{background:transparent;border-style:dashed}
+.product-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.product-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.product-card .check-line{margin:18px 0 0}
 
 @media(max-width:600px){
   .auth-card{padding:30px}

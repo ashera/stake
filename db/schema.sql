@@ -53,3 +53,25 @@ CREATE TABLE IF NOT EXISTS deal_terms (
 );
 
 CREATE INDEX IF NOT EXISTS deal_terms_position_idx ON deal_terms (position, id);
+
+-- Products — the live opportunities pitched to marketers on the landing page.
+-- Managed from /admin/products; only `published` rows show publicly. Seeded with
+-- the Frockd pilot on first deploy. `description` may hold multiple paragraphs
+-- separated by a blank line; the meta fields map to the card's Stage / mandate /
+-- lever / deal rows.
+CREATE TABLE IF NOT EXISTS products (
+  id           BIGSERIAL PRIMARY KEY,
+  name         TEXT        NOT NULL,
+  category     TEXT,
+  badge        TEXT,
+  description  TEXT,
+  stage        TEXT,
+  mandate      TEXT,
+  lever        TEXT,
+  deal_summary TEXT,
+  published    BOOLEAN     NOT NULL DEFAULT false,
+  position     INTEGER     NOT NULL DEFAULT 0,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS products_position_idx ON products (position, id);

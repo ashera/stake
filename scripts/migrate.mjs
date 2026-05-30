@@ -75,6 +75,29 @@ try {
     }
     console.log("[migrate] Seeded default deal terms.");
   }
+
+  // 4. Default product (the Frockd pilot) — only when the table is empty, so
+  //    admin edits in /admin/products are never overwritten. Keep in sync with
+  //    DEFAULT_PRODUCTS in lib/products.ts.
+  const { rows: pc } = await client.query(`SELECT COUNT(*)::int AS n FROM products`);
+  if (pc[0].n === 0) {
+    await client.query(
+      `INSERT INTO products
+         (name, category, badge, description, stage, mandate, lever, deal_summary, published, position)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, 0)`,
+      [
+        "Frockd.com.au",
+        "Formal-dress marketplace · Australia",
+        "Open · 1 spot",
+        "A working marketplace where people list their formal dresses. The product is built and live — listings convert when buyers show up. Right now it has almost no audience.\n\nThe interesting part: revenue is listing fees, but the real lever is buyer demand. Crack the buyer side and the rest follows. It's a clean, winnable puzzle for someone who knows how to manufacture demand in a niche.",
+        "Live · ~zero traction",
+        "All of growth",
+        "Buyer demand",
+        "Rev-share, $0 baseline",
+      ]
+    );
+    console.log("[migrate] Seeded default product (Frockd).");
+  }
 } catch (err) {
   console.error("[migrate] Failed:", err);
   process.exit(1);

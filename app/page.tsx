@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getDealTerms } from "@/lib/deal";
+import { getPublishedProducts } from "@/lib/products";
 import ApplyForm from "./ApplyForm";
 
 export default async function Home() {
-  const [user, dealTerms] = await Promise.all([getCurrentUser(), getDealTerms()]);
+  const [user, dealTerms, products] = await Promise.all([
+    getCurrentUser(),
+    getDealTerms(),
+    getPublishedProducts(),
+  ]);
 
   return (
     <div className="wrap">
@@ -134,51 +139,56 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="opp">
-        <div className="section-label">The first live opportunity</div>
-        <h2 className="section-title">One product is on the table right now.</h2>
-        <div className="opp-card">
-          <div className="opp-top">
-            <span className="badge">Open · 1 spot</span>
-            <span style={{ color: "var(--bone-dim)", fontSize: 14 }}>
-              Formal-dress marketplace · Australia
-            </span>
+      {products.length > 0 && (
+        <section className="opp">
+          <div className="section-label">Live opportunities</div>
+          <h2 className="section-title">
+            {products.length === 1
+              ? "One product is on the table right now."
+              : "Products on the table right now."}
+          </h2>
+          <div className="opp-cards">
+            {products.map((p, i) => {
+              const meta: [string, string][] = [
+                ["Stage", p.stage],
+                ["Your mandate", p.mandate],
+                ["The lever", p.lever],
+                ["Deal", p.dealSummary],
+              ];
+              return (
+                <div className="opp-card" key={p.id ?? i}>
+                  <div className="opp-top">
+                    <span className="badge">{p.badge}</span>
+                    <span style={{ color: "var(--bone-dim)", fontSize: 14 }}>{p.category}</span>
+                  </div>
+                  <div className="opp-body">
+                    <div>
+                      <h3>{p.name}</h3>
+                      {p.description
+                        .split(/\n\s*\n/)
+                        .map((para) => para.trim())
+                        .filter(Boolean)
+                        .map((para, j) => (
+                          <p key={j}>{para}</p>
+                        ))}
+                    </div>
+                    <div className="opp-meta">
+                      {meta
+                        .filter(([, val]) => val)
+                        .map(([lab, val]) => (
+                          <div className="meta-row" key={lab}>
+                            <span className="lab">{lab}</span>
+                            <span className="val">{val}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="opp-body">
-            <div>
-              <h3>Frockd.com.au</h3>
-              <p>
-                A working marketplace where people list their formal dresses. The product is built
-                and live — listings convert when buyers show up. Right now it has almost no audience.
-              </p>
-              <p>
-                The interesting part: revenue is listing fees, but the real lever is{" "}
-                <strong style={{ color: "var(--bone)" }}>buyer demand</strong>. Crack the buyer side
-                and the rest follows. It&apos;s a clean, winnable puzzle for someone who knows how to
-                manufacture demand in a niche.
-              </p>
-            </div>
-            <div className="opp-meta">
-              <div className="meta-row">
-                <span className="lab">Stage</span>
-                <span className="val">Live · ~zero traction</span>
-              </div>
-              <div className="meta-row">
-                <span className="lab">Your mandate</span>
-                <span className="val">All of growth</span>
-              </div>
-              <div className="meta-row">
-                <span className="lab">The lever</span>
-                <span className="val">Buyer demand</span>
-              </div>
-              <div className="meta-row">
-                <span className="lab">Deal</span>
-                <span className="val">Rev-share, $0 baseline</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="apply" id="apply">
         <div className="form-card">
