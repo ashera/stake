@@ -18,6 +18,7 @@ type UpdateBody = {
   leverId?: string | null;
   dealId?: string | null;
   published?: boolean;
+  featured?: boolean;
 };
 
 // Reference ids arrive as strings (or null/empty for "none"). Coerce to a
@@ -53,13 +54,18 @@ export async function PATCH(req: Request, { params }: Params) {
   const status = (body.status || "").trim() || "Open";
   const spotsNum = Number(body.spots);
   const spots = Number.isFinite(spotsNum) ? Math.max(0, Math.trunc(spotsNum)) : 1;
+  const featured = Boolean(body.featured);
 
+  // Transaction: featured is exclusive — setting it clears every other product.
+  const client = await pool.connect();
   try {
-    const { rows } = await pool.query(
+    await client.query("BEGIN");
+    const { rows } = await client.query(
       `UPDATE products
           SET name = $1, category = $2, status = $3, spots = $4, description = $5,
-              stage_id = $6, mandate_id = $7, lever_id = $8, deal_id = $9, published = $10
-        WHERE id = $11
+              stage_id = $6, mandate_id = $7, lever_id = $8, deal_id = $9,
+              published = $10, featured = $11
+        WHERE id = $12
         RETURNING ${PRODUCT_COLUMNS}`,
       [
         name,
@@ -72,14 +78,21 @@ export async function PATCH(req: Request, { params }: Params) {
         refId(body.leverId),
         refId(body.dealId),
         Boolean(body.published),
+        featured,
         params.id,
       ]
     );
     if (rows.length === 0) {
+      await client.query("ROLLBACK");
       return NextResponse.json({ ok: false, error: "Product not found." }, { status: 404 });
     }
+    if (featured) {
+      await client.query(`UPDATE products SET featured = false WHERE id <> $1`, [params.id]);
+    }
+    await client.query("COMMIT");
     return NextResponse.json({ ok: true, product: mapProductRow(rows[0]) });
   } catch (err: unknown) {
+    await client.query("ROLLBACK");
     // 23503 = foreign_key_violation (a referenced option no longer exists)
     if (typeof err === "object" && err && (err as { code?: string }).code === "23503") {
       return NextResponse.json(
@@ -89,6 +102,8 @@ export async function PATCH(req: Request, { params }: Params) {
     }
     console.error("[admin/products] update failed:", err);
     return NextResponse.json({ ok: false, error: "Could not save the product." }, { status: 500 });
+  } finally {
+    client.release();
   }
 }
 

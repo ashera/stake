@@ -81,6 +81,14 @@ section.how{padding:90px 0}
 .term .v{font-family:var(--serif);font-size:26px;color:var(--acid)}
 .term .v small{font-family:var(--sans);font-size:13px;color:var(--bone-dim)}
 
+/* tighter hero on the home page; featured opportunity block */
+.home-hero{padding:64px 0 44px}
+.page-head{padding:70px 0 34px}
+.featured{padding:8px 0 44px}
+.featured .section-label{margin-bottom:16px}
+.featured .see-all{display:inline-block;margin-top:22px;color:var(--acid);font-weight:600;font-size:15px;text-decoration:none}
+.featured .see-all:hover{text-decoration:underline}
+
 .opp{padding:90px 0}
 .opp-cards{display:flex;flex-direction:column;gap:24px}
 .opp-card{border:1px solid var(--rule);border-radius:22px;overflow:hidden;background:linear-gradient(135deg,rgba(198,242,78,.06),transparent)}

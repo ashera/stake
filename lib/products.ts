@@ -13,6 +13,7 @@ export type Product = {
   leverId: string | null;
   dealId: string | null;
   published: boolean;
+  featured: boolean;
 };
 
 type ProductRow = {
@@ -27,11 +28,12 @@ type ProductRow = {
   lever_id: number | string | null;
   deal_id: number | string | null;
   published: boolean;
+  featured: boolean;
 };
 
 // Columns for admin reads / RETURNING (the *_id form, not the resolved labels).
 export const PRODUCT_COLUMNS =
-  "id, name, category, status, spots, description, stage_id, mandate_id, lever_id, deal_id, published";
+  "id, name, category, status, spots, description, stage_id, mandate_id, lever_id, deal_id, published, featured";
 
 const refId = (v: number | string | null) => (v != null ? String(v) : null);
 
@@ -48,6 +50,7 @@ export function mapProductRow(r: ProductRow): Product {
     leverId: refId(r.lever_id),
     dealId: refId(r.deal_id),
     published: r.published,
+    featured: r.featured,
   };
 }
 
@@ -62,6 +65,7 @@ export type ProductDisplay = {
   spots: number;
   description: string;
   published: boolean;
+  featured: boolean;
   stage: ProductAttr;
   mandate: ProductAttr;
   lever: ProductAttr;
@@ -79,6 +83,7 @@ export const DEFAULT_PRODUCTS: ProductDisplay[] = [
     description:
       "A working marketplace where people list their formal dresses. The product is built and live — listings convert when buyers show up. Right now it has almost no audience.\n\nThe interesting part: revenue is listing fees, but the real lever is buyer demand. Crack the buyer side and the rest follows. It's a clean, winnable puzzle for someone who knows how to manufacture demand in a niche.",
     published: true,
+    featured: true,
     stage: {
       label: "Live · ~zero traction",
       description: "Built and working, but almost nobody knows it exists yet.",
@@ -99,44 +104,67 @@ export const DEFAULT_PRODUCTS: ProductDisplay[] = [
   },
 ];
 
-// Published products for public display, with each attribute resolved to its
-// label + description via reference_options. Degrades to the defaults if the DB
-// is absent or not yet migrated; returns [] if products exist but none are
-// published.
+// Shared SELECT that resolves each attribute FK to its label + description.
+const DISPLAY_SELECT = `
+  SELECT p.id, p.name, p.category, p.status, p.spots, p.description, p.published, p.featured,
+         st.label AS stage_label,   st.description AS stage_desc,
+         ma.label AS mandate_label, ma.description AS mandate_desc,
+         le.label AS lever_label,   le.description AS lever_desc,
+         de.label AS deal_label,    de.description AS deal_desc
+    FROM products p
+    LEFT JOIN reference_options st ON st.id = p.stage_id
+    LEFT JOIN reference_options ma ON ma.id = p.mandate_id
+    LEFT JOIN reference_options le ON le.id = p.lever_id
+    LEFT JOIN reference_options de ON de.id = p.deal_id`;
+
+function mapDisplayRow(r: Record<string, unknown>): ProductDisplay {
+  const s = (v: unknown) => (v == null ? "" : String(v));
+  return {
+    id: String(r.id),
+    name: s(r.name),
+    category: s(r.category),
+    status: s(r.status) || "Open",
+    spots: typeof r.spots === "number" ? r.spots : 0,
+    description: s(r.description),
+    published: Boolean(r.published),
+    featured: Boolean(r.featured),
+    stage: { label: s(r.stage_label), description: s(r.stage_desc) },
+    mandate: { label: s(r.mandate_label), description: s(r.mandate_desc) },
+    lever: { label: s(r.lever_label), description: s(r.lever_desc) },
+    deal: { label: s(r.deal_label), description: s(r.deal_desc) },
+  };
+}
+
+// Published products for public display, with each attribute resolved. Degrades
+// to the defaults if the DB is absent or not yet migrated; returns [] if products
+// exist but none are published.
 export async function getPublishedProducts(): Promise<ProductDisplay[]> {
   const pool = getPool();
   if (!pool) return DEFAULT_PRODUCTS;
   try {
-    const { rows } = await pool.query(
-      `SELECT p.id, p.name, p.category, p.status, p.spots, p.description, p.published,
-              st.label AS stage_label,   st.description AS stage_desc,
-              ma.label AS mandate_label, ma.description AS mandate_desc,
-              le.label AS lever_label,   le.description AS lever_desc,
-              de.label AS deal_label,    de.description AS deal_desc
-         FROM products p
-         LEFT JOIN reference_options st ON st.id = p.stage_id
-         LEFT JOIN reference_options ma ON ma.id = p.mandate_id
-         LEFT JOIN reference_options le ON le.id = p.lever_id
-         LEFT JOIN reference_options de ON de.id = p.deal_id
-        ORDER BY p.position ASC, p.id ASC`
-    );
+    const { rows } = await pool.query(`${DISPLAY_SELECT} ORDER BY p.position ASC, p.id ASC`);
     if (rows.length === 0) return DEFAULT_PRODUCTS;
-    return rows
-      .filter((r) => r.published)
-      .map((r) => ({
-        id: String(r.id),
-        name: r.name,
-        category: r.category ?? "",
-        status: r.status ?? "Open",
-        spots: r.spots ?? 0,
-        description: r.description ?? "",
-        published: r.published,
-        stage: { label: r.stage_label ?? "", description: r.stage_desc ?? "" },
-        mandate: { label: r.mandate_label ?? "", description: r.mandate_desc ?? "" },
-        lever: { label: r.lever_label ?? "", description: r.lever_desc ?? "" },
-        deal: { label: r.deal_label ?? "", description: r.deal_desc ?? "" },
-      }));
+    return rows.filter((r) => r.published).map(mapDisplayRow);
   } catch {
     return DEFAULT_PRODUCTS;
+  }
+}
+
+// The single product to feature on the home page: the featured published product
+// (lowest position), else the first published product. Degrades to the default
+// product if there's no DB / unmigrated table; null if products exist but none
+// are published.
+export async function getFeaturedProduct(): Promise<ProductDisplay | null> {
+  const pool = getPool();
+  if (!pool) return DEFAULT_PRODUCTS[0] ?? null;
+  try {
+    const { rows } = await pool.query(
+      `${DISPLAY_SELECT} ORDER BY p.featured DESC, p.position ASC, p.id ASC`
+    );
+    if (rows.length === 0) return DEFAULT_PRODUCTS[0] ?? null;
+    const published = rows.filter((r) => r.published);
+    return published.length > 0 ? mapDisplayRow(published[0]) : null;
+  } catch {
+    return DEFAULT_PRODUCTS[0] ?? null;
   }
 }

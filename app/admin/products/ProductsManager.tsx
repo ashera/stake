@@ -24,6 +24,7 @@ export type Product = {
   leverId: string | null;
   dealId: string | null;
   published: boolean;
+  featured: boolean;
 };
 
 const STATUS_OPTIONS = ["Open", "Coming soon", "Filled", "Closed"];
@@ -109,10 +110,18 @@ export default function ProductsManager({
           leverId: p.leverId,
           dealId: p.dealId,
           published: p.published,
+          featured: p.featured,
         }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't save.");
+      // Featured is exclusive — if this product is now featured, reflect that the
+      // others are no longer featured (the server clears them).
+      if (data.product?.featured) {
+        setProducts((ps) =>
+          ps.map((x) => (x.id === p.id ? { ...x, featured: true } : { ...x, featured: false }))
+        );
+      }
       setSavedId(p.id);
       setTimeout(() => setSavedId((id) => (id === p.id ? null : id)), 1800);
     } catch (err) {
@@ -308,6 +317,15 @@ export default function ProductsManager({
                 onChange={(e) => editLocal(p.id, { published: e.target.checked })}
               />
               Published (visible on the landing page) — remember to Save
+            </label>
+            <label className="check-line">
+              <input
+                type="checkbox"
+                checked={p.featured}
+                onChange={(e) => editLocal(p.id, { featured: e.target.checked })}
+              />
+              Featured (the single product shown on the home page) — exclusive; saving this clears it
+              from others
             </label>
           </div>
         ))}

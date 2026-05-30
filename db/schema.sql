@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS products (
   lever_id     BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
   deal_id      BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
   published    BOOLEAN     NOT NULL DEFAULT false,
+  featured     BOOLEAN     NOT NULL DEFAULT false,
   position     INTEGER     NOT NULL DEFAULT 0,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );

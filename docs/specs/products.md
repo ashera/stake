@@ -2,7 +2,7 @@
 
 - **Status:** Active
 - **Last updated:** 2026-05-31
-- **Code:** `lib/products.ts`, `lib/badge.ts`, `app/admin/products/*`, `app/api/admin/products/*`, `app/page.tsx`, `db/schema.sql`
+- **Code:** `lib/products.ts`, `lib/badge.ts`, `app/admin/products/*`, `app/api/admin/products/*`, `app/ProductCard.tsx`, `app/page.tsx`, `app/how-it-works/page.tsx`, `db/schema.sql`
 
 ## Summary
 
@@ -20,28 +20,35 @@ publicly.
 ## Data model
 
 `products` — `id, name, category, status, spots, description, stage_id,
-mandate_id, lever_id, deal_id, published, position, created_at`.
+mandate_id, lever_id, deal_id, published, featured, position, created_at`.
 
 - `status` (text, e.g. "Open") + `spots` (int) combine into the card pill.
 - `description` may hold multiple paragraphs separated by a blank line.
 - `stage_id` / `mandate_id` / `lever_id` / `deal_id` are FKs into
   `reference_options` (`ON DELETE SET NULL`) — see [reference-data](./reference-data.md).
+- `featured` — exactly one product is featured; it's the single product shown on
+  the home page (see [landing-and-applications](./landing-and-applications.md)).
 
 ## Behaviour
 
-- **Landing:** `getPublishedProducts()` joins the attribute FKs to resolve each to
-  `{ label, description }`, returns only published rows ordered by `position`, and
-  renders a card per product (pill via `formatBadge`, description paragraphs, and
-  the four meta rows with the option description shown under each value). Section
-  heading adapts for one vs many; hides entirely if none published. Falls back to
-  `DEFAULT_PRODUCTS` if the DB is absent/unmigrated/empty.
+- **Rendering:** the shared `ProductCard` component renders a card (pill via
+  `formatBadge`, description paragraphs, and the four meta rows with the option
+  description shown under each value).
+  - **Home** shows the single featured product via `getFeaturedProduct()`.
+  - **`/how-it-works`** shows the full list via `getPublishedProducts()` — both
+    join the attribute FKs to resolve `{ label, description }`, return only
+    published rows by `position`, and fall back to `DEFAULT_PRODUCTS` if the DB is
+    absent/unmigrated/empty. `getFeaturedProduct()` returns the featured published
+    product (else the first published; null if products exist but none published).
 - **Pill:** `formatBadge(status, spots)` → e.g. "Open · 2 spots" (auto-pluralised;
   0 spots shows just the status). Lives in `lib/badge.ts` (client-safe, **no DB
   import**) so the admin form can preview it without pulling `pg` into the client.
 - **Admin (`/admin/products`):** local-state manager — add (creates an unpublished
   draft), edit fields, status dropdown, spots, attribute dropdowns (sourced from
   reference options, previewing the selected option's description), publish toggle,
-  reorder, delete.
+  **featured toggle**, reorder, delete.
+- **Featured is exclusive:** the `PATCH` runs in a transaction that clears
+  `featured` on all other products when one is set, so there's always at most one.
 - **Seed:** the Frockd product seeded on first deploy only when the table is empty.
 
 ## API / Interfaces
@@ -63,6 +70,10 @@ mandate_id, lever_id, deal_id, published, position, created_at`.
   travel with the option (see [reference-data](./reference-data.md)).
 - **Client-safe `lib/badge.ts`** — avoids importing the DB-backed `lib/products`
   into the client bundle.
+- **`featured` is exclusive (single)** — the home page shows exactly one product,
+  so flagging a product featured clears it from the rest (enforced in the PATCH
+  transaction). On deploy, if nothing is featured, migrate features the first
+  product so the home page is never empty.
 
 ## Open questions / risks
 

@@ -137,6 +137,18 @@ try {
     console.log("[migrate] Converted product attributes to reference options.");
   }
 
+  // 1d. Ensure products has a `featured` flag, and feature the first product if
+  //     none is featured yet, so the home page always has one to show. Idempotent:
+  //     the UPDATE only fires when nothing is currently featured.
+  await client.query(
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT false`
+  );
+  await client.query(
+    `UPDATE products SET featured = true
+      WHERE id = (SELECT id FROM products ORDER BY position ASC, id ASC LIMIT 1)
+        AND NOT EXISTS (SELECT 1 FROM products WHERE featured = true)`
+  );
+
   // 2. First-admin seed from env (optional). Set ADMIN_EMAIL + ADMIN_PASSWORD in
   //    the Railway dashboard. Creates the admin only if it doesn't exist yet —
   //    never overwrites an existing account.
@@ -189,13 +201,13 @@ try {
   if (pc[0].n === 0) {
     await client.query(
       `INSERT INTO products
-         (name, category, status, spots, description, stage_id, mandate_id, lever_id, deal_id, published, position)
+         (name, category, status, spots, description, stage_id, mandate_id, lever_id, deal_id, published, featured, position)
        VALUES ($1, $2, $3, $4, $5,
          (SELECT id FROM reference_options WHERE category = 'stage'   AND label = $6),
          (SELECT id FROM reference_options WHERE category = 'mandate' AND label = $7),
          (SELECT id FROM reference_options WHERE category = 'lever'   AND label = $8),
          (SELECT id FROM reference_options WHERE category = 'deal'    AND label = $9),
-         true, 0)`,
+         true, true, 0)`,
       [
         "Frockd.com.au",
         "Formal-dress marketplace · Australia",
