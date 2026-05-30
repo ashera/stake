@@ -1,6 +1,7 @@
 import { getPool } from "@/lib/db";
 import { PRODUCT_COLUMNS, mapProductRow } from "@/lib/products";
-import ProductsManager, { type Product } from "./ProductsManager";
+import { getReferenceOptions } from "@/lib/reference";
+import ProductsManager, { type Product, type ProductOptions } from "./ProductsManager";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +16,16 @@ async function getAllProducts(): Promise<Product[]> {
 }
 
 export default async function AdminProducts() {
-  const products = await getAllProducts();
+  const [products, refOptions] = await Promise.all([getAllProducts(), getReferenceOptions()]);
   const published = products.filter((p) => p.published).length;
+
+  // Group reference options by category for the attribute dropdowns.
+  const options: ProductOptions = {
+    stage: refOptions.filter((o) => o.category === "stage"),
+    mandate: refOptions.filter((o) => o.category === "mandate"),
+    lever: refOptions.filter((o) => o.category === "lever"),
+    deal: refOptions.filter((o) => o.category === "deal"),
+  };
 
   return (
     <section>
@@ -31,7 +40,7 @@ export default async function AdminProducts() {
         unpublished drafts — fill them in, then tick <strong>Published</strong> to show
         them. Only published products appear publicly.
       </p>
-      <ProductsManager initialProducts={products} />
+      <ProductsManager initialProducts={products} options={options} />
     </section>
   );
 }

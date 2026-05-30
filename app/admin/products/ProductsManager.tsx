@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { formatBadge } from "@/lib/badge";
+
+export type RefOpt = { id: string; label: string; description: string };
+export type ProductOptions = {
+  stage: RefOpt[];
+  mandate: RefOpt[];
+  lever: RefOpt[];
+  deal: RefOpt[];
+};
 
 export type Product = {
   id: string;
@@ -10,16 +19,52 @@ export type Product = {
   status: string;
   spots: number;
   description: string;
-  stage: string;
-  mandate: string;
-  lever: string;
-  dealSummary: string;
+  stageId: string | null;
+  mandateId: string | null;
+  leverId: string | null;
+  dealId: string | null;
   published: boolean;
 };
 
 const STATUS_OPTIONS = ["Open", "Coming soon", "Filled", "Closed"];
 
-export default function ProductsManager({ initialProducts }: { initialProducts: Product[] }) {
+// A reference-backed attribute dropdown that also shows the chosen option's
+// explanatory text (the same text shown on the public card).
+function AttrSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string | null;
+  options: RefOpt[];
+  onChange: (v: string | null) => void;
+}) {
+  const selected = options.find((o) => o.id === value);
+  return (
+    <div className="field">
+      <label>{label}</label>
+      <select value={value ?? ""} onChange={(e) => onChange(e.target.value || null)}>
+        <option value="">— none —</option>
+        {options.map((o) => (
+          <option key={o.id} value={o.id}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      {selected?.description && <p className="attr-hint">{selected.description}</p>}
+    </div>
+  );
+}
+
+export default function ProductsManager({
+  initialProducts,
+  options,
+}: {
+  initialProducts: Product[];
+  options: ProductOptions;
+}) {
   // Local state is the source of truth after mount; the public landing page
   // reads fresh from the DB, so no server re-render is needed here.
   const [products, setProducts] = useState<Product[]>(initialProducts);
@@ -59,10 +104,10 @@ export default function ProductsManager({ initialProducts }: { initialProducts: 
           status: p.status,
           spots: p.spots,
           description: p.description,
-          stage: p.stage,
-          mandate: p.mandate,
-          lever: p.lever,
-          dealSummary: p.dealSummary,
+          stageId: p.stageId,
+          mandateId: p.mandateId,
+          leverId: p.leverId,
+          dealId: p.dealId,
           published: p.published,
         }),
       });
@@ -121,6 +166,9 @@ export default function ProductsManager({ initialProducts }: { initialProducts: 
   return (
     <div className="products-admin">
       <div className="products-head">
+        <span className="muted">
+          Attribute options are managed in <Link href="/admin/reference">Reference data</Link>.
+        </span>
         <button className="btn-sm btn-primary-sm" onClick={addProduct} disabled={busy}>
           + Add product
         </button>
@@ -226,44 +274,32 @@ export default function ProductsManager({ initialProducts }: { initialProducts: 
               />
             </div>
             <div className="row2">
-              <div className="field">
-                <label>Stage</label>
-                <input
-                  type="text"
-                  value={p.stage}
-                  onChange={(e) => editLocal(p.id, { stage: e.target.value })}
-                  placeholder="Live · ~zero traction"
-                />
-              </div>
-              <div className="field">
-                <label>Your mandate</label>
-                <input
-                  type="text"
-                  value={p.mandate}
-                  onChange={(e) => editLocal(p.id, { mandate: e.target.value })}
-                  placeholder="All of growth"
-                />
-              </div>
+              <AttrSelect
+                label="Stage"
+                value={p.stageId}
+                options={options.stage}
+                onChange={(v) => editLocal(p.id, { stageId: v })}
+              />
+              <AttrSelect
+                label="Your mandate"
+                value={p.mandateId}
+                options={options.mandate}
+                onChange={(v) => editLocal(p.id, { mandateId: v })}
+              />
             </div>
             <div className="row2">
-              <div className="field">
-                <label>The lever</label>
-                <input
-                  type="text"
-                  value={p.lever}
-                  onChange={(e) => editLocal(p.id, { lever: e.target.value })}
-                  placeholder="Buyer demand"
-                />
-              </div>
-              <div className="field">
-                <label>Deal</label>
-                <input
-                  type="text"
-                  value={p.dealSummary}
-                  onChange={(e) => editLocal(p.id, { dealSummary: e.target.value })}
-                  placeholder="Rev-share, $0 baseline"
-                />
-              </div>
+              <AttrSelect
+                label="The lever"
+                value={p.leverId}
+                options={options.lever}
+                onChange={(v) => editLocal(p.id, { leverId: v })}
+              />
+              <AttrSelect
+                label="Deal"
+                value={p.dealId}
+                options={options.deal}
+                onChange={(v) => editLocal(p.id, { dealId: v })}
+              />
             </div>
             <label className="check-line">
               <input

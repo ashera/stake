@@ -145,13 +145,26 @@ Guardrails: you can't demote or delete yourself, or remove the last admin.
 ### Products
 
 **Admin → Products** manages the live opportunities shown on the landing page
-(name, category, status, spots, description, and the Stage / mandate / lever /
-deal meta rows). Status is a dropdown; status + spots combine into the card pill
-(e.g. "Open · 2 spots"). New products start as **unpublished drafts** — only published products
-appear publicly. Add/edit/reorder/delete, toggle Published, then Save. Stored in
-the `products` table, seeded with the Frockd pilot on first deploy; the landing
-page falls back to `DEFAULT_PRODUCTS` in `lib/products.ts` if the DB is empty or
-unreachable. Description supports multiple paragraphs (separate with a blank line).
+(name, category, status, spots, description). Status is a dropdown; status +
+spots combine into the card pill (e.g. "Open · 2 spots"). The Stage / mandate /
+lever / deal attributes are **dropdowns backed by reference data** (see below) —
+each stored as a foreign key, so the option's description renders under the value
+on the card. New products start as **unpublished drafts** — only published
+products appear publicly. Add/edit/reorder/delete, toggle Published, then Save.
+Stored in the `products` table, seeded with the Frockd pilot on first deploy; the
+landing page falls back to `DEFAULT_PRODUCTS` in `lib/products.ts` if the DB is
+empty or unreachable. Description supports multiple paragraphs (blank line).
+
+### Reference data
+
+**Admin → Reference data** manages the dropdown options for the four product
+attributes (Stage, mandate, lever, deal). Each option has a **label** and a
+**description** — the description shows under the value on the product card so
+visitors understand what the attribute means. Add/edit/reorder/delete per
+category. Stored in `reference_options`; products reference them by id
+(`ON DELETE SET NULL`, so deleting an option just clears it from products).
+Seeded with defaults on first deploy — **review and reword these** to match how
+you actually describe opportunities.
 
 ### Deal terms
 

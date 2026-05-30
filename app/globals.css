@@ -94,6 +94,7 @@ section.how{padding:90px 0}
 .meta-row:last-child{border:none}
 .meta-row .lab{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--bone-dim)}
 .meta-row .val{font-size:17px;font-weight:600}
+.meta-row .hint{font-size:13px;color:var(--bone-dim);line-height:1.45;margin-top:2px}
 
 .apply{padding:50px 0 100px}
 .form-card{background:var(--ink-2);border:1px solid var(--rule);border-radius:22px;padding:46px}
@@ -207,13 +208,32 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
 }
 
 /* products management */
-.products-head{display:flex;justify-content:flex-end;margin-bottom:20px}
+.products-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.products-head .muted{font-size:14px;color:var(--bone-dim)}
+.products-head .muted a{color:var(--acid);text-decoration:none}
+.products-head .muted a:hover{text-decoration:underline}
+.attr-hint{font-size:13px;color:var(--bone-dim);margin-top:8px;line-height:1.45}
 .product-cards{display:flex;flex-direction:column;gap:20px}
 .product-card{border:1px solid var(--rule);border-radius:18px;padding:24px;background:var(--ink-2)}
 .product-card.is-draft{background:transparent;border-style:dashed}
 .product-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
 .product-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .product-card .check-line{margin:18px 0 0}
+
+/* reference data management */
+.reference-admin{display:flex;flex-direction:column;gap:40px}
+.ref-category > h3{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.4px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+.ref-options{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.ref-option{display:grid;grid-template-columns:minmax(180px,1fr) 2fr auto;gap:14px;align-items:end;border:1px solid var(--rule);border-radius:14px;padding:16px 18px;background:var(--ink-2)}
+.ref-option .field{margin-bottom:0}
+.ref-option .field textarea{min-height:0}
+.ref-option-actions{display:flex;gap:6px;align-items:center}
+.ref-option-new{background:transparent;border-style:dashed}
+
+@media(max-width:760px){
+  .ref-option{grid-template-columns:1fr}
+  .ref-option-actions{justify-content:flex-start;flex-wrap:wrap}
+}
 
 @media(max-width:600px){
   .auth-card{padding:30px}

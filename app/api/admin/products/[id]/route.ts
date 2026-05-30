@@ -13,12 +13,20 @@ type UpdateBody = {
   status?: string;
   spots?: number;
   description?: string;
-  stage?: string;
-  mandate?: string;
-  lever?: string;
-  dealSummary?: string;
+  stageId?: string | null;
+  mandateId?: string | null;
+  leverId?: string | null;
+  dealId?: string | null;
   published?: boolean;
 };
+
+// Reference ids arrive as strings (or null/empty for "none"). Coerce to a
+// numeric id or null; reject anything non-numeric.
+function refId(v: string | null | undefined): number | null {
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
 
 // PATCH — update all editable fields of a product.
 export async function PATCH(req: Request, { params }: Params) {
@@ -46,30 +54,42 @@ export async function PATCH(req: Request, { params }: Params) {
   const spotsNum = Number(body.spots);
   const spots = Number.isFinite(spotsNum) ? Math.max(0, Math.trunc(spotsNum)) : 1;
 
-  const { rows } = await pool.query(
-    `UPDATE products
-        SET name = $1, category = $2, status = $3, spots = $4, description = $5,
-            stage = $6, mandate = $7, lever = $8, deal_summary = $9, published = $10
-      WHERE id = $11
-      RETURNING ${PRODUCT_COLUMNS}`,
-    [
-      name,
-      trim(body.category),
-      status,
-      spots,
-      trim(body.description),
-      trim(body.stage),
-      trim(body.mandate),
-      trim(body.lever),
-      trim(body.dealSummary),
-      Boolean(body.published),
-      params.id,
-    ]
-  );
-  if (rows.length === 0) {
-    return NextResponse.json({ ok: false, error: "Product not found." }, { status: 404 });
+  try {
+    const { rows } = await pool.query(
+      `UPDATE products
+          SET name = $1, category = $2, status = $3, spots = $4, description = $5,
+              stage_id = $6, mandate_id = $7, lever_id = $8, deal_id = $9, published = $10
+        WHERE id = $11
+        RETURNING ${PRODUCT_COLUMNS}`,
+      [
+        name,
+        trim(body.category),
+        status,
+        spots,
+        trim(body.description),
+        refId(body.stageId),
+        refId(body.mandateId),
+        refId(body.leverId),
+        refId(body.dealId),
+        Boolean(body.published),
+        params.id,
+      ]
+    );
+    if (rows.length === 0) {
+      return NextResponse.json({ ok: false, error: "Product not found." }, { status: 404 });
+    }
+    return NextResponse.json({ ok: true, product: mapProductRow(rows[0]) });
+  } catch (err: unknown) {
+    // 23503 = foreign_key_violation (a referenced option no longer exists)
+    if (typeof err === "object" && err && (err as { code?: string }).code === "23503") {
+      return NextResponse.json(
+        { ok: false, error: "One of the selected options no longer exists. Refresh and retry." },
+        { status: 422 }
+      );
+    }
+    console.error("[admin/products] update failed:", err);
+    return NextResponse.json({ ok: false, error: "Could not save the product." }, { status: 500 });
   }
-  return NextResponse.json({ ok: true, product: mapProductRow(rows[0]) });
 }
 
 // DELETE — remove a product.

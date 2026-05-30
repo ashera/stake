@@ -54,11 +54,29 @@ CREATE TABLE IF NOT EXISTS deal_terms (
 
 CREATE INDEX IF NOT EXISTS deal_terms_position_idx ON deal_terms (position, id);
 
+-- Reference options — the managed dropdown values for a product's Stage /
+-- mandate / lever / deal attributes. `category` is one of stage|mandate|lever|deal.
+-- `description` explains what the option means and is shown under the value on
+-- the product card. Managed from /admin/reference.
+CREATE TABLE IF NOT EXISTS reference_options (
+  id          BIGSERIAL   PRIMARY KEY,
+  category    TEXT        NOT NULL,
+  label       TEXT        NOT NULL,
+  description TEXT        NOT NULL DEFAULT '',
+  position    INTEGER     NOT NULL DEFAULT 0,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (category, label)
+);
+
+CREATE INDEX IF NOT EXISTS reference_options_category_idx
+  ON reference_options (category, position, id);
+
 -- Products — the live opportunities pitched to marketers on the landing page.
 -- Managed from /admin/products; only `published` rows show publicly. Seeded with
 -- the Frockd pilot on first deploy. `description` may hold multiple paragraphs
--- separated by a blank line; the meta fields map to the card's Stage / mandate /
--- lever / deal rows.
+-- separated by a blank line. The Stage / mandate / lever / deal attributes are
+-- foreign keys into reference_options (ON DELETE SET NULL so removing an option
+-- just clears it from products).
 CREATE TABLE IF NOT EXISTS products (
   id           BIGSERIAL PRIMARY KEY,
   name         TEXT        NOT NULL,
@@ -66,10 +84,10 @@ CREATE TABLE IF NOT EXISTS products (
   status       TEXT        NOT NULL DEFAULT 'Open',
   spots        INTEGER     NOT NULL DEFAULT 1,
   description  TEXT,
-  stage        TEXT,
-  mandate      TEXT,
-  lever        TEXT,
-  deal_summary TEXT,
+  stage_id     BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
+  mandate_id   BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
+  lever_id     BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
+  deal_id      BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
   published    BOOLEAN     NOT NULL DEFAULT false,
   position     INTEGER     NOT NULL DEFAULT 0,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()

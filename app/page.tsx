@@ -150,11 +150,11 @@ export default async function Home() {
           </h2>
           <div className="opp-cards">
             {products.map((p, i) => {
-              const meta: [string, string][] = [
+              const meta: [string, { label: string; description: string }][] = [
                 ["Stage", p.stage],
                 ["Your mandate", p.mandate],
                 ["The lever", p.lever],
-                ["Deal", p.dealSummary],
+                ["Deal", p.deal],
               ];
               return (
                 <div className="opp-card" key={p.id ?? i}>
@@ -175,11 +175,12 @@ export default async function Home() {
                     </div>
                     <div className="opp-meta">
                       {meta
-                        .filter(([, val]) => val)
-                        .map(([lab, val]) => (
+                        .filter(([, attr]) => attr.label)
+                        .map(([lab, attr]) => (
                           <div className="meta-row" key={lab}>
                             <span className="lab">{lab}</span>
-                            <span className="val">{val}</span>
+                            <span className="val">{attr.label}</span>
+                            {attr.description && <span className="hint">{attr.description}</span>}
                           </div>
                         ))}
                     </div>

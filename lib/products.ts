@@ -1,5 +1,6 @@
 import { getPool } from "@/lib/db";
 
+// Storage/edit shape — attributes are foreign keys into reference_options.
 export type Product = {
   id?: string;
   name: string;
@@ -7,10 +8,10 @@ export type Product = {
   status: string;
   spots: number;
   description: string;
-  stage: string;
-  mandate: string;
-  lever: string;
-  dealSummary: string;
+  stageId: string | null;
+  mandateId: string | null;
+  leverId: string | null;
+  dealId: string | null;
   published: boolean;
 };
 
@@ -21,17 +22,18 @@ type ProductRow = {
   status: string | null;
   spots: number | null;
   description: string | null;
-  stage: string | null;
-  mandate: string | null;
-  lever: string | null;
-  deal_summary: string | null;
+  stage_id: number | string | null;
+  mandate_id: number | string | null;
+  lever_id: number | string | null;
+  deal_id: number | string | null;
   published: boolean;
 };
 
-// Columns selected wherever a full product is read, in the order the mapper
-// expects.
+// Columns for admin reads / RETURNING (the *_id form, not the resolved labels).
 export const PRODUCT_COLUMNS =
-  "id, name, category, status, spots, description, stage, mandate, lever, deal_summary, published";
+  "id, name, category, status, spots, description, stage_id, mandate_id, lever_id, deal_id, published";
+
+const refId = (v: number | string | null) => (v != null ? String(v) : null);
 
 export function mapProductRow(r: ProductRow): Product {
   return {
@@ -41,18 +43,34 @@ export function mapProductRow(r: ProductRow): Product {
     status: r.status ?? "Open",
     spots: r.spots ?? 0,
     description: r.description ?? "",
-    stage: r.stage ?? "",
-    mandate: r.mandate ?? "",
-    lever: r.lever ?? "",
-    dealSummary: r.deal_summary ?? "",
+    stageId: refId(r.stage_id),
+    mandateId: refId(r.mandate_id),
+    leverId: refId(r.lever_id),
+    dealId: refId(r.deal_id),
     published: r.published,
   };
 }
 
+// Display shape for the public card — each attribute resolved to its label and
+// explanatory description.
+export type ProductAttr = { label: string; description: string };
+export type ProductDisplay = {
+  id?: string;
+  name: string;
+  category: string;
+  status: string;
+  spots: number;
+  description: string;
+  published: boolean;
+  stage: ProductAttr;
+  mandate: ProductAttr;
+  lever: ProductAttr;
+  deal: ProductAttr;
+};
+
 // Fallback shown when there's no database or the products table isn't migrated
-// yet, so the landing page always has something live. Keep in sync with the seed
-// in scripts/migrate.mjs.
-export const DEFAULT_PRODUCTS: Product[] = [
+// yet. Keep in sync with the seeds in scripts/migrate.mjs.
+export const DEFAULT_PRODUCTS: ProductDisplay[] = [
   {
     name: "Frockd.com.au",
     category: "Formal-dress marketplace · Australia",
@@ -60,26 +78,64 @@ export const DEFAULT_PRODUCTS: Product[] = [
     spots: 1,
     description:
       "A working marketplace where people list their formal dresses. The product is built and live — listings convert when buyers show up. Right now it has almost no audience.\n\nThe interesting part: revenue is listing fees, but the real lever is buyer demand. Crack the buyer side and the rest follows. It's a clean, winnable puzzle for someone who knows how to manufacture demand in a niche.",
-    stage: "Live · ~zero traction",
-    mandate: "All of growth",
-    lever: "Buyer demand",
-    dealSummary: "Rev-share, $0 baseline",
     published: true,
+    stage: {
+      label: "Live · ~zero traction",
+      description: "Built and working, but almost nobody knows it exists yet.",
+    },
+    mandate: {
+      label: "All of growth",
+      description:
+        "You own every growth channel end to end — demand, SEO, social, paid, partnerships.",
+    },
+    lever: {
+      label: "Buyer demand",
+      description: "The main constraint is attracting buyers, not supply.",
+    },
+    deal: {
+      label: "Rev-share, $0 baseline",
+      description: "You earn a share of net-new revenue measured from a clean zero baseline.",
+    },
   },
 ];
 
-// Published products for public display. Degrades to the defaults if the DB is
-// absent or not yet migrated; returns [] if products exist but none are
-// published (so the section can hide when an admin has hidden everything).
-export async function getPublishedProducts(): Promise<Product[]> {
+// Published products for public display, with each attribute resolved to its
+// label + description via reference_options. Degrades to the defaults if the DB
+// is absent or not yet migrated; returns [] if products exist but none are
+// published.
+export async function getPublishedProducts(): Promise<ProductDisplay[]> {
   const pool = getPool();
   if (!pool) return DEFAULT_PRODUCTS;
   try {
     const { rows } = await pool.query(
-      `SELECT ${PRODUCT_COLUMNS} FROM products ORDER BY position ASC, id ASC`
+      `SELECT p.id, p.name, p.category, p.status, p.spots, p.description, p.published,
+              st.label AS stage_label,   st.description AS stage_desc,
+              ma.label AS mandate_label, ma.description AS mandate_desc,
+              le.label AS lever_label,   le.description AS lever_desc,
+              de.label AS deal_label,    de.description AS deal_desc
+         FROM products p
+         LEFT JOIN reference_options st ON st.id = p.stage_id
+         LEFT JOIN reference_options ma ON ma.id = p.mandate_id
+         LEFT JOIN reference_options le ON le.id = p.lever_id
+         LEFT JOIN reference_options de ON de.id = p.deal_id
+        ORDER BY p.position ASC, p.id ASC`
     );
     if (rows.length === 0) return DEFAULT_PRODUCTS;
-    return (rows as ProductRow[]).filter((r) => r.published).map(mapProductRow);
+    return rows
+      .filter((r) => r.published)
+      .map((r) => ({
+        id: String(r.id),
+        name: r.name,
+        category: r.category ?? "",
+        status: r.status ?? "Open",
+        spots: r.spots ?? 0,
+        description: r.description ?? "",
+        published: r.published,
+        stage: { label: r.stage_label ?? "", description: r.stage_desc ?? "" },
+        mandate: { label: r.mandate_label ?? "", description: r.mandate_desc ?? "" },
+        lever: { label: r.lever_label ?? "", description: r.lever_desc ?? "" },
+        deal: { label: r.deal_label ?? "", description: r.deal_desc ?? "" },
+      }));
   } catch {
     return DEFAULT_PRODUCTS;
   }

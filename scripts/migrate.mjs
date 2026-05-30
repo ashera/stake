@@ -50,6 +50,93 @@ try {
     console.log("[migrate] Split products.badge into status + spots.");
   }
 
+  // 1b. Default reference options — only when empty. These are the managed
+  //     dropdown values + descriptions for the product attributes. Keep in sync
+  //     with DEFAULT_REFERENCE_OPTIONS in lib/reference.ts.
+  const { rows: rc } = await client.query(`SELECT COUNT(*)::int AS n FROM reference_options`);
+  if (rc[0].n === 0) {
+    const refDefaults = {
+      stage: [
+        ["Live · ~zero traction", "Built and working, but almost nobody knows it exists yet."],
+        ["Live · early traction", "Already has some users or revenue and is ready to scale."],
+        ["Pre-launch", "Built but not yet open to the public."],
+      ],
+      mandate: [
+        ["All of growth", "You own every growth channel end to end — demand, SEO, social, paid, partnerships."],
+        ["Demand generation", "Focused on driving new top-of-funnel demand."],
+        ["Single channel", "One channel only, e.g. SEO or paid acquisition."],
+      ],
+      lever: [
+        ["Buyer demand", "The main constraint is attracting buyers, not supply."],
+        ["Supply", "The main constraint is adding more listings or sellers."],
+        ["Retention", "The main constraint is keeping existing users active."],
+      ],
+      deal: [
+        ["Rev-share, $0 baseline", "You earn a share of net-new revenue measured from a clean zero baseline."],
+        ["Rev-share, existing baseline", "A share of revenue above the current run-rate."],
+      ],
+    };
+    for (const [category, options] of Object.entries(refDefaults)) {
+      for (let i = 0; i < options.length; i++) {
+        await client.query(
+          `INSERT INTO reference_options (category, label, description, position)
+           VALUES ($1, $2, $3, $4) ON CONFLICT (category, label) DO NOTHING`,
+          [category, options[i][0], options[i][1], i]
+        );
+      }
+    }
+    console.log("[migrate] Seeded default reference options.");
+  }
+
+  // 1c. One-time: convert the old free-text product attributes (stage, mandate,
+  //     lever, deal_summary) into reference_options foreign keys. Preserves data
+  //     by turning every existing value into an option first. Guarded on the old
+  //     `stage` column, so it's a no-op on fresh DBs and on re-runs.
+  const { rows: hasStage } = await client.query(
+    `SELECT 1 FROM information_schema.columns
+      WHERE table_name = 'products' AND column_name = 'stage'`
+  );
+  if (hasStage.length > 0) {
+    for (const c of ["stage", "mandate", "lever", "deal"]) {
+      await client.query(
+        `ALTER TABLE products ADD COLUMN IF NOT EXISTS ${c}_id BIGINT
+           REFERENCES reference_options (id) ON DELETE SET NULL`
+      );
+    }
+    // [reference category, old text column]
+    const cols = [
+      ["stage", "stage"],
+      ["mandate", "mandate"],
+      ["lever", "lever"],
+      ["deal", "deal_summary"],
+    ];
+    for (const [cat, col] of cols) {
+      // Ensure an option exists for every value currently in use (no data loss).
+      await client.query(
+        `INSERT INTO reference_options (category, label, description, position)
+         SELECT $1, x.v, '', 0
+           FROM (SELECT DISTINCT ${col} AS v FROM products WHERE COALESCE(${col}, '') <> '') x
+         ON CONFLICT (category, label) DO NOTHING`,
+        [cat]
+      );
+      // Link each product to the matching option.
+      await client.query(
+        `UPDATE products p SET ${cat}_id = ro.id
+           FROM reference_options ro
+          WHERE ro.category = $1 AND ro.label = p.${col}`,
+        [cat]
+      );
+    }
+    await client.query(
+      `ALTER TABLE products
+         DROP COLUMN IF EXISTS stage,
+         DROP COLUMN IF EXISTS mandate,
+         DROP COLUMN IF EXISTS lever,
+         DROP COLUMN IF EXISTS deal_summary`
+    );
+    console.log("[migrate] Converted product attributes to reference options.");
+  }
+
   // 2. First-admin seed from env (optional). Set ADMIN_EMAIL + ADMIN_PASSWORD in
   //    the Railway dashboard. Creates the admin only if it doesn't exist yet —
   //    never overwrites an existing account.
@@ -102,8 +189,13 @@ try {
   if (pc[0].n === 0) {
     await client.query(
       `INSERT INTO products
-         (name, category, status, spots, description, stage, mandate, lever, deal_summary, published, position)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, 0)`,
+         (name, category, status, spots, description, stage_id, mandate_id, lever_id, deal_id, published, position)
+       VALUES ($1, $2, $3, $4, $5,
+         (SELECT id FROM reference_options WHERE category = 'stage'   AND label = $6),
+         (SELECT id FROM reference_options WHERE category = 'mandate' AND label = $7),
+         (SELECT id FROM reference_options WHERE category = 'lever'   AND label = $8),
+         (SELECT id FROM reference_options WHERE category = 'deal'    AND label = $9),
+         true, 0)`,
       [
         "Frockd.com.au",
         "Formal-dress marketplace · Australia",
