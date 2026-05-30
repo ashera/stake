@@ -15,6 +15,9 @@ Feature specifications live in [`docs/specs/`](./docs/specs/) — one per featur
 capturing data model, interfaces, and the decisions behind each. New features get
 a spec (copy `docs/specs/_TEMPLATE.md`) in the same change as the code.
 
+The product concept, decision chain, and Frockd pilot are in
+[`docs/PROJECT-CONTEXT.md`](./docs/PROJECT-CONTEXT.md).
+
 ## Stack
 
 - Next.js 14 (App Router) + TypeScript

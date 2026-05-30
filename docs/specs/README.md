@@ -27,4 +27,4 @@ it, so settled questions don't get re-opened.
 ## Wider context
 
 The product concept, decision chain, and Frockd pilot live in
-[`STAKE-PROJECT-CONTEXT.md`](../../STAKE-PROJECT-CONTEXT.md) at the repo root.
+[`PROJECT-CONTEXT.md`](../PROJECT-CONTEXT.md).

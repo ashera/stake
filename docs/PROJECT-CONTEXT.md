@@ -1,4 +1,4 @@
-# Stake — Project Context & Handoff
+# Traxn — Project Context & Handoff
 
 > **Purpose of this file:** Paste this at the start of a new conversation to bring Claude back up to speed on this project. It captures the concept, the key decisions *and the reasoning behind them*, the current state of what's been built, and what's next. The reasoning matters as much as the conclusions — it's what stops us re-opening settled questions.
 
