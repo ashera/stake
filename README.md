@@ -9,6 +9,12 @@ There is deliberately **no** login, two-sided matching, or payment flow yet.
 A human runs the matching behind the curtain. Build the rest only after this page
 proves marketers bite.
 
+## Specs
+
+Feature specifications live in [`docs/specs/`](./docs/specs/) — one per feature,
+capturing data model, interfaces, and the decisions behind each. New features get
+a spec (copy `docs/specs/_TEMPLATE.md`) in the same change as the code.
+
 ## Stack
 
 - Next.js 14 (App Router) + TypeScript
