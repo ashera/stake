@@ -32,8 +32,10 @@ nav{display:flex;justify-content:space-between;align-items:center;padding:26px 0
 .brand{font-family:var(--serif);font-weight:600;font-size:25px;letter-spacing:-.5px;display:flex;align-items:center;gap:9px}
 .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--acid);box-shadow:0 0 14px rgba(198,242,78,.7)}
 .brand small{font-family:var(--sans);font-weight:500;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--bone-dim);border:1px solid var(--rule);padding:3px 7px;border-radius:20px}
-nav a.navcta{font-weight:600;font-size:15px;color:var(--ink);background:var(--acid);padding:11px 20px;border-radius:40px;text-decoration:none;transition:transform .2s,box-shadow .2s}
-nav a.navcta:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(198,242,78,.25)}
+nav a.nav-login{font-weight:600;font-size:15px;color:var(--bone);text-decoration:none;padding:9px 18px;border-radius:40px;border:1px solid var(--rule);transition:border-color .2s,background .2s}
+nav a.nav-login:hover{border-color:var(--bone-dim);background:rgba(244,239,230,.05)}
+nav .nav-account{font-weight:600;font-size:15px;color:var(--acid);text-decoration:none}
+nav a.nav-account:hover{text-decoration:underline}
 
 header{padding:90px 0 70px}
 .eyebrow{font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acid-deep);font-weight:600;margin-bottom:26px;opacity:0;animation:rise .7s .05s forwards}

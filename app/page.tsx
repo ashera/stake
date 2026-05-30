@@ -1,16 +1,30 @@
+import Link from "next/link";
+import { getCurrentUser } from "@/lib/auth";
 import ApplyForm from "./ApplyForm";
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
+
   return (
     <div className="wrap">
       <nav>
         <div className="brand">
           <span className="dot" />
-          Stake <small>working name</small>
+          Stake
         </div>
-        <a className="navcta" href="#apply">
-          Apply
-        </a>
+        {user ? (
+          user.isAdmin ? (
+            <Link className="nav-account" href="/admin">
+              {user.email}
+            </Link>
+          ) : (
+            <span className="nav-account">{user.email}</span>
+          )
+        ) : (
+          <Link className="nav-login" href="/login">
+            Log in
+          </Link>
+        )}
       </nav>
 
       <header>
