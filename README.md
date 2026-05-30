@@ -25,8 +25,10 @@ app/
   globals.css         all styling
   api/apply/route.ts  POST endpoint — saves an application to Postgres
 lib/db.ts             shared Postgres pool (no-op if DATABASE_URL is unset)
-db/schema.sql         the single `applications` table
-scripts/db-init.mjs   applies schema.sql to your database
+lib/auth.ts           admin auth: scrypt hashing + session cookies
+db/schema.sql         tables: applications, users, sessions
+scripts/migrate.mjs       applies the schema + seeds an admin (runs on deploy)
+scripts/create-admin.mjs  manually create/promote an admin
 ```
 
 ## Run locally
@@ -44,9 +46,12 @@ stored.
 ## Database
 
 ```bash
-# point at your Railway Postgres, then:
-npm run db:init           # creates the applications table
+# with DATABASE_URL set (locally or pointed at Railway Postgres):
+npm run db:migrate        # applies the schema — idempotent, safe to re-run
 ```
+
+On Railway this runs **automatically on every deploy** (see below), so you don't
+normally call it by hand.
 
 View applications:
 
@@ -61,36 +66,33 @@ to `main`. Build/start commands and the healthcheck are pinned in `railway.json`
 and the Node version in `.nvmrc` / `package.json` `engines`, so builds are
 deterministic.
 
-### One-time setup
+**No CLI needed** — schema migrations and the first admin are applied on deploy.
+The start command in `railway.json` is `node scripts/migrate.mjs && npm start`,
+so every deploy applies the schema (idempotent) before the server boots.
 
-1. In Railway: **New Project → Deploy from GitHub repo** → pick `ashera/stake`.
+### One-time setup (all in the Railway dashboard)
+
+1. **New Project → Deploy from GitHub repo** → pick `ashera/stake`.
 2. Add a **Postgres** database to the project; Railway injects `DATABASE_URL`
    into the service automatically.
-3. Initialise the schema once (see below).
+3. In the service's **Variables** tab, set `ADMIN_EMAIL` and `ADMIN_PASSWORD`
+   (min 8 chars). The next deploy seeds that admin — created only if it doesn't
+   already exist, so it's safe on every deploy. Sign in at `/login`, then you can
+   remove the two vars.
 4. **Settings → Networking → Generate Domain** to get a public URL.
 
-Railway reads `railway.json` for the build (`npm run build`) and start
-(`npm start`) commands — no autodetect guessing.
-
-### Initialise the database (once)
-
-The Railway CLI can run the init script against the live database with the
-project's env vars injected:
-
-```bash
-railway login            # opens a browser once
-railway link             # select the project/service
-railway run npm run db:init
-```
-
-(Or run `npm run db:init` locally with `DATABASE_URL` set to the value from the
-Railway Postgres → **Connect** tab.)
+Railway reads `railway.json` for the build (`npm run build`) and start commands —
+no autodetect guessing.
 
 ### Ongoing deploys
 
 ```bash
-git push origin main     # Railway builds and deploys automatically
+git push origin main     # Railway builds, migrates, and deploys automatically
 ```
+
+Schema changes ship the same way: edit `db/schema.sql` (keep statements
+idempotent — `CREATE TABLE/INDEX IF NOT EXISTS`, `ALTER TABLE ... IF NOT EXISTS`)
+and push. The migrate step applies them on the next deploy.
 
 ## Push to a new GitHub repo
 
@@ -123,16 +125,19 @@ random session tokens stored as SHA-256 in the `sessions` table.
 
 ### Create the first admin
 
-After the schema is applied (`db:init`), seed an admin:
+**On Railway:** set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in the Variables tab — the
+deploy seeds that admin automatically (see "Deploy to Railway" above). No CLI.
+
+**Locally / manually** (e.g. to add another admin or reset a password) with
+`DATABASE_URL` set:
 
 ```bash
 npm run create-admin -- you@email.com "a-strong-password"
-# on Railway:
-railway run npm run create-admin -- you@email.com "a-strong-password"
 ```
 
-Re-running with an existing email resets that user's password and re-grants
-admin. Then sign in at `/login`; the dashboard lives at `/admin`.
+Re-running `create-admin` with an existing email resets that user's password and
+re-grants admin. (The deploy-time env seed, by contrast, never overwrites an
+existing account.) Sign in at `/login`; the dashboard lives at `/admin`.
 
 From **Admin → Users** you can add users, flag/unflag admin, and delete users.
 Guardrails: you can't demote or delete yourself, or remove the last admin.

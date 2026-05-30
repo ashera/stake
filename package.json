@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:init": "node scripts/db-init.mjs",
+    "db:migrate": "node scripts/migrate.mjs",
     "create-admin": "node scripts/create-admin.mjs"
   },
   "engines": {

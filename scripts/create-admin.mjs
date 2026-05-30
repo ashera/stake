@@ -2,16 +2,8 @@
 // Usage: node scripts/create-admin.mjs <email> <password>
 //   e.g. npm run create-admin -- adam@example.com "a-strong-password"
 //   on Railway:  railway run npm run create-admin -- adam@example.com "..."
-import { randomBytes, scryptSync } from "node:crypto";
 import pg from "pg";
-
-// Mirror of hashPassword() in lib/auth.ts (kept inline so this script has no
-// build step / TS import). Format: "scrypt$<saltHex>$<hashHex>".
-function hashPassword(password) {
-  const salt = randomBytes(16);
-  const derived = scryptSync(password, salt, 64);
-  return `scrypt$${salt.toString("hex")}$${derived.toString("hex")}`;
-}
+import { hashPassword } from "./_password.mjs";
 
 const [email, password] = process.argv.slice(2);
 
