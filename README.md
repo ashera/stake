@@ -56,11 +56,41 @@ SELECT created_at, name, email, niche, revshare FROM applications ORDER BY creat
 
 ## Deploy to Railway
 
-1. Push this repo to GitHub (below).
-2. In Railway: **New Project → Deploy from GitHub repo** → pick this repo.
-3. Add a **Postgres** plugin; Railway injects `DATABASE_URL`.
-4. Run `npm run db:init` once (Railway shell, or locally against the same URL).
-5. Railway auto-detects Next.js and runs `npm run build` / `npm start`.
+Deploys go **via GitHub**: Railway watches this repo and redeploys on every push
+to `main`. Build/start commands and the healthcheck are pinned in `railway.json`,
+and the Node version in `.nvmrc` / `package.json` `engines`, so builds are
+deterministic.
+
+### One-time setup
+
+1. In Railway: **New Project → Deploy from GitHub repo** → pick `ashera/stake`.
+2. Add a **Postgres** database to the project; Railway injects `DATABASE_URL`
+   into the service automatically.
+3. Initialise the schema once (see below).
+4. **Settings → Networking → Generate Domain** to get a public URL.
+
+Railway reads `railway.json` for the build (`npm run build`) and start
+(`npm start`) commands — no autodetect guessing.
+
+### Initialise the database (once)
+
+The Railway CLI can run the init script against the live database with the
+project's env vars injected:
+
+```bash
+railway login            # opens a browser once
+railway link             # select the project/service
+railway run npm run db:init
+```
+
+(Or run `npm run db:init` locally with `DATABASE_URL` set to the value from the
+Railway Postgres → **Connect** tab.)
+
+### Ongoing deploys
+
+```bash
+git push origin main     # Railway builds and deploys automatically
+```
 
 ## Push to a new GitHub repo
 
