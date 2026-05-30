@@ -114,3 +114,16 @@ CREATE TABLE IF NOT EXISTS deals (
 CREATE INDEX IF NOT EXISTS deals_user_idx ON deals (user_id);
 CREATE INDEX IF NOT EXISTS deals_product_idx ON deals (product_id);
 CREATE INDEX IF NOT EXISTS deals_created_idx ON deals (created_at DESC);
+
+-- Events — an in-app activity/audit log (emails, deals, sign-ins, deploy
+-- migrations). Written best-effort alongside stdout; viewed at /admin/events.
+CREATE TABLE IF NOT EXISTS events (
+  id         BIGSERIAL   PRIMARY KEY,
+  level      TEXT        NOT NULL DEFAULT 'info',  -- info | warn | error
+  type       TEXT        NOT NULL,                 -- dotted name, e.g. email.sent
+  message    TEXT        NOT NULL,
+  meta       JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS events_created_idx ON events (created_at DESC);

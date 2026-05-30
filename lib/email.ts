@@ -2,6 +2,8 @@
 // otherwise logs the message to the server console so the flow still works in
 // dev / before a provider is configured (the concierge can relay the link).
 
+import { logEvent } from "@/lib/events";
+
 type SendArgs = { to: string; subject: string; html: string; text: string };
 
 // Absolute base URL for links in emails. Prefers APP_URL; falls back to the
@@ -19,7 +21,12 @@ export async function sendEmail({ to, subject, html, text }: SendArgs): Promise<
   const from = process.env.EMAIL_FROM || "Traxn <onboarding@resend.dev>";
 
   if (!key) {
-    console.log(`[email] (no RESEND_API_KEY — not sent) to=${to} subject="${subject}"\n${text}`);
+    await logEvent({
+      level: "warn",
+      type: "email.skipped",
+      message: `No RESEND_API_KEY — "${subject}" not sent to ${to}`,
+      meta: { to, subject, link: text },
+    });
     return false;
   }
 
@@ -30,12 +37,24 @@ export async function sendEmail({ to, subject, html, text }: SendArgs): Promise<
       body: JSON.stringify({ from, to, subject, html, text }),
     });
     if (!res.ok) {
-      console.error("[email] send failed:", res.status, await res.text().catch(() => ""));
+      const detail = await res.text().catch(() => "");
+      await logEvent({
+        level: "error",
+        type: "email.failed",
+        message: `Send failed (${res.status}) for "${subject}" to ${to}`,
+        meta: { to, subject, status: res.status, detail },
+      });
       return false;
     }
+    await logEvent({ type: "email.sent", message: `Sent "${subject}" to ${to}`, meta: { to, subject } });
     return true;
   } catch (err) {
-    console.error("[email] error:", err);
+    await logEvent({
+      level: "error",
+      type: "email.failed",
+      message: `Send errored for "${subject}" to ${to}`,
+      meta: { to, subject, error: String(err) },
+    });
     return false;
   }
 }

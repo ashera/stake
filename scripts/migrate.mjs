@@ -23,13 +23,24 @@ const client = new pg.Client({
   ssl: process.env.PGSSL === "disable" ? false : { rejectUnauthorized: false },
 });
 
+// Log a milestone to stdout and (best-effort) the events table, so deploy
+// activity is visible at /admin/events without the Railway CLI.
+async function note(type, message) {
+  console.log(`[migrate] ${message}`);
+  try {
+    await client.query(`INSERT INTO events (level, type, message) VALUES ('info', $1, $2)`, [type, message]);
+  } catch {
+    // events table may not exist yet on the very first statements — ignore.
+  }
+}
+
 try {
   await client.connect();
 
   // 1. Schema.
   const sql = readFileSync(join(__dirname, "..", "db", "schema.sql"), "utf8");
   await client.query(sql);
-  console.log("[migrate] Schema applied.");
+  await note("migrate.schema", "Schema applied.");
 
   // 1a. One-time: split the old products.badge ("Open · 1 spot") into the
   //     structured status + spots columns, then drop badge. Guarded on the badge
@@ -47,7 +58,7 @@ try {
         spots  = COALESCE(NULLIF(regexp_replace(split_part(badge, '·', 2), '[^0-9]', '', 'g'), '')::int, 1)
     `);
     await client.query(`ALTER TABLE products DROP COLUMN badge`);
-    console.log("[migrate] Split products.badge into status + spots.");
+    await note("migrate.products", "Split products.badge into status + spots.");
   }
 
   // 1b. Default reference options — only when empty. These are the managed
@@ -85,7 +96,7 @@ try {
         );
       }
     }
-    console.log("[migrate] Seeded default reference options.");
+    await note("migrate.seed", "Seeded default reference options.");
   }
 
   // 1c. One-time: convert the old free-text product attributes (stage, mandate,
@@ -134,7 +145,7 @@ try {
          DROP COLUMN IF EXISTS lever,
          DROP COLUMN IF EXISTS deal_summary`
     );
-    console.log("[migrate] Converted product attributes to reference options.");
+    await note("migrate.products", "Converted product attributes to reference options.");
   }
 
   // 1d. Ensure products has a `featured` flag, and feature the first product if
@@ -175,7 +186,7 @@ try {
         WHERE COALESCE(a.email, '') <> ''`
     );
     await client.query(`DROP TABLE applications`);
-    console.log("[migrate] Migrated applications into deals and dropped the table.");
+    await note("migrate.deals", "Migrated applications into deals and dropped the table.");
   }
 
   // 2. First-admin seed from env (optional). Set ADMIN_EMAIL + ADMIN_PASSWORD in
@@ -193,10 +204,9 @@ try {
          ON CONFLICT (email) DO NOTHING`,
         [email, hashPassword(password)]
       );
-      console.log(
-        rowCount > 0
-          ? `[migrate] Seeded admin ${email}.`
-          : `[migrate] Admin ${email} already exists — left unchanged.`
+      await note(
+        "migrate.admin",
+        rowCount > 0 ? `Seeded admin ${email}.` : `Admin ${email} already exists — left unchanged.`
       );
     }
   } else if (email || password) {
@@ -220,7 +230,7 @@ try {
         [label, value, suffix, position]
       );
     }
-    console.log("[migrate] Seeded default deal terms.");
+    await note("migrate.seed", "Seeded default deal terms.");
   }
 
   // 4. Default product (the Frockd pilot) — only when the table is empty, so
@@ -249,10 +259,18 @@ try {
         "Rev-share, $0 baseline",
       ]
     );
-    console.log("[migrate] Seeded default product (Frockd).");
+    await note("migrate.seed", "Seeded default product (Frockd).");
   }
+
+  await note("migrate.completed", "Migration finished.");
 } catch (err) {
   console.error("[migrate] Failed:", err);
+  try {
+    await client.query(
+      `INSERT INTO events (level, type, message) VALUES ('error', 'migrate.failed', $1)`,
+      [String(err)]
+    );
+  } catch {}
   process.exit(1);
 } finally {
   await client.end();

@@ -20,6 +20,7 @@ it, so settled questions don't get re-opened.
 | [landing-and-applications](./landing-and-applications.md) | Public site: home (featured) + /how-it-works; apply via the express-interest wizard |
 | [deals](./deals.md) | First-class deal linking a marketer to a product; the express-interest wizard + "my deals" |
 | [email-verification](./email-verification.md) | Email verification + magic-link sign-in (Resend, console fallback) |
+| [events-and-logging](./events-and-logging.md) | In-app activity/audit log + /admin/events viewer |
 | [admin-auth-and-users](./admin-auth-and-users.md) | Login, sessions, and user management (admins + passwordless marketer leads) |
 | [deploy-and-migrations](./deploy-and-migrations.md) | Railway deploy via GitHub and migrate-on-deploy |
 | [deal-terms](./deal-terms.md) | DB-backed, admin-managed deal terms on the landing page |

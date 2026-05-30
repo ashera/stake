@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyEmailToken, createSession } from "@/lib/auth";
 import { baseUrl } from "@/lib/email";
+import { logEvent } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -16,5 +17,6 @@ export async function GET(req: Request) {
   }
 
   await createSession(userId);
+  await logEvent({ type: "email.verified", message: `User ${userId} verified their email`, meta: { userId } });
   return NextResponse.redirect(`${base}/deals?verified=1`);
 }

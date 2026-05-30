@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
 import { verifyPassword, createSession } from "@/lib/auth";
 import { rateLimit, clientIp, tooMany } from "@/lib/rateLimit";
+import { logEvent } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -59,5 +60,6 @@ export async function POST(req: Request) {
   }
 
   await createSession(String(user.id));
+  await logEvent({ type: "auth.login", message: `Signed in: ${email}`, meta: { email } });
   return NextResponse.json({ ok: true });
 }

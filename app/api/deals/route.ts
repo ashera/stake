@@ -8,6 +8,7 @@ import {
 } from "@/lib/auth";
 import { baseUrl, sendVerificationEmail } from "@/lib/email";
 import { rateLimit, clientIp, tooMany } from "@/lib/rateLimit";
+import { logEvent } from "@/lib/events";
 
 export const runtime = "nodejs";
 
@@ -112,6 +113,7 @@ export async function POST(req: Request) {
       );
       userId = String(rows[0].id);
       needVerify = true;
+      await logEvent({ type: "user.created", message: `New marketer: ${email}`, meta: { email } });
     }
     makeSession = true;
   }
@@ -129,6 +131,11 @@ export async function POST(req: Request) {
       [userId, productId, trim(body.link), trim(body.proof), trim(body.niche), trim(body.revshare), trim(body.note)]
     );
     dealId = String(rows[0].id);
+    await logEvent({
+      type: "deal.submitted",
+      message: `Interest in ${productId ? `product ${productId}` : "(no product)"} from ${current ? current.email : email}`,
+      meta: { dealId, productId, email: current ? current.email : email },
+    });
   } catch (err: unknown) {
     // 23503 = the product id doesn't exist
     if (typeof err === "object" && err && (err as { code?: string }).code === "23503") {
