@@ -40,6 +40,9 @@ don't block the apply flow on it.
   `VerifyBanner` on the deal and `/deals` pages while unverified.
 - **Magic link** (`POST /api/auth/magic-link`, `MagicLinkForm` on `/login`):
   request a sign-in link by email. Always responds ok (non-enumerating).
+- **Rate limited** (`lib/rateLimit.ts`, in-memory): magic-link 5/15min per IP and
+  3/15min per email; resend 3/15min per user. Login (10/IP, 5/email per 15min) and
+  deal submit (15/IP per hour) are limited too. Over-limit → 429 + `Retry-After`.
 
 ## Decisions & rationale
 
@@ -54,8 +57,8 @@ don't block the apply flow on it.
 
 ## Open questions / risks
 
-- **No rate limiting** on magic-link / resend — a known gap; add throttling before
-  real volume.
+- Rate limiting is **in-memory (per-instance, resets on restart)** — fine for one
+  Railway instance; move to Redis/Postgres if we scale horizontally.
 - Verify link is a bearer credential (standard for magic links): single-use + short
   TTL mitigate, but anyone with the link can sign in as that user.
 - Untestable locally without a DB + provider; first real run is the Railway deploy

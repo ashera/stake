@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser, createEmailVerificationToken } from "@/lib/auth";
 import { baseUrl, sendVerificationEmail } from "@/lib/email";
+import { rateLimit, tooMany } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,9 @@ export async function POST(req: Request) {
   if (user.emailVerified) {
     return NextResponse.json({ ok: true, already: true });
   }
+
+  const limit = rateLimit(`resend:${user.id}`, 3, 15 * 60 * 1000);
+  if (!limit.ok) return tooMany(limit.retryAfter);
 
   const token = await createEmailVerificationToken(user.id);
   if (token) await sendVerificationEmail(user.email, `${baseUrl(req)}/verify-email?token=${token}`);

@@ -29,7 +29,11 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 
 ## Behaviour
 
-- **Passwords:** scrypt (Node built-in) hash/verify in `lib/auth.ts`.
+- **Passwords:** scrypt (Node built-in) hash/verify in `lib/auth.ts`. Passwordless
+  accounts can't sign in via the password form (same non-enumerating error) — they
+  use the magic link.
+- **Rate limiting** (`lib/rateLimit.ts`, in-memory): login 10/IP + 5/email per
+  15min; email endpoints throttled too (see [email-verification](./email-verification.md)).
 - **Sessions:** a random 32-byte token lives in an httpOnly/SameSite=lax/secure
   cookie (`stake_session`); only its SHA-256 is stored, so a DB leak can't be
   replayed. 30-day expiry.
@@ -74,6 +78,6 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 
 ## Open questions / risks
 
-- Email verification + magic-link sign-in now exist (see
-  [email-verification](./email-verification.md)); no rate limiting on them yet.
+- Rate limiting is in-memory (per-instance) — swap for Redis/Postgres if we scale
+  horizontally.
 - No session rotation on privilege change.

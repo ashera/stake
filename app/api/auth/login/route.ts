@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
 import { verifyPassword, createSession } from "@/lib/auth";
+import { rateLimit, clientIp, tooMany } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
 type LoginBody = { email?: string; password?: string };
 
+const FIFTEEN_MIN = 15 * 60 * 1000;
+
 export async function POST(req: Request) {
+  const ipLimit = rateLimit(`login:ip:${clientIp(req)}`, 10, FIFTEEN_MIN);
+  if (!ipLimit.ok) return tooMany(ipLimit.retryAfter);
+
   let body: LoginBody;
   try {
     body = await req.json();
@@ -24,6 +30,9 @@ export async function POST(req: Request) {
     );
   }
 
+  const emailLimit = rateLimit(`login:email:${email}`, 5, FIFTEEN_MIN);
+  if (!emailLimit.ok) return tooMany(emailLimit.retryAfter);
+
   const pool = getPool();
   if (!pool) {
     return NextResponse.json(
@@ -39,8 +48,10 @@ export async function POST(req: Request) {
 
   // Same response whether the email is unknown or the password is wrong, so the
   // form can't be used to enumerate which accounts exist.
+  // Passwordless accounts (marketer leads) can't log in here — they use a
+  // magic-link instead. Treat as an incorrect login (same non-enumerating error).
   const user = rows[0];
-  if (!user || !verifyPassword(password, user.password_hash)) {
+  if (!user || !user.password_hash || !verifyPassword(password, user.password_hash)) {
     return NextResponse.json(
       { ok: false, error: "Email or password is incorrect." },
       { status: 401 }

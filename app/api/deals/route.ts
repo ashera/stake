@@ -7,6 +7,7 @@ import {
   createEmailVerificationToken,
 } from "@/lib/auth";
 import { baseUrl, sendVerificationEmail } from "@/lib/email";
+import { rateLimit, clientIp, tooMany } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -29,6 +30,9 @@ const trim = (s?: string) => (s || "").trim() || null;
 // session so they land on their deal page; an existing *credentialed* account
 // (not logged in) is asked to log in instead of being silently written to.
 export async function POST(req: Request) {
+  const limit = rateLimit(`deals:ip:${clientIp(req)}`, 15, 60 * 60 * 1000);
+  if (!limit.ok) return tooMany(limit.retryAfter);
+
   let body: Body;
   try {
     body = await req.json();
