@@ -31,6 +31,25 @@ try {
   await client.query(sql);
   console.log("[migrate] Schema applied.");
 
+  // 1a. One-time: split the old products.badge ("Open · 1 spot") into the
+  //     structured status + spots columns, then drop badge. Guarded on the badge
+  //     column still existing, so it's a no-op on fresh DBs and on re-runs.
+  const { rows: hasBadge } = await client.query(
+    `SELECT 1 FROM information_schema.columns
+      WHERE table_name = 'products' AND column_name = 'badge'`
+  );
+  if (hasBadge.length > 0) {
+    await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'Open'`);
+    await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS spots INTEGER NOT NULL DEFAULT 1`);
+    await client.query(`
+      UPDATE products SET
+        status = COALESCE(NULLIF(TRIM(split_part(badge, '·', 1)), ''), 'Open'),
+        spots  = COALESCE(NULLIF(regexp_replace(split_part(badge, '·', 2), '[^0-9]', '', 'g'), '')::int, 1)
+    `);
+    await client.query(`ALTER TABLE products DROP COLUMN badge`);
+    console.log("[migrate] Split products.badge into status + spots.");
+  }
+
   // 2. First-admin seed from env (optional). Set ADMIN_EMAIL + ADMIN_PASSWORD in
   //    the Railway dashboard. Creates the admin only if it doesn't exist yet —
   //    never overwrites an existing account.
@@ -83,12 +102,13 @@ try {
   if (pc[0].n === 0) {
     await client.query(
       `INSERT INTO products
-         (name, category, badge, description, stage, mandate, lever, deal_summary, published, position)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, 0)`,
+         (name, category, status, spots, description, stage, mandate, lever, deal_summary, published, position)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, 0)`,
       [
         "Frockd.com.au",
         "Formal-dress marketplace · Australia",
-        "Open · 1 spot",
+        "Open",
+        1,
         "A working marketplace where people list their formal dresses. The product is built and live — listings convert when buyers show up. Right now it has almost no audience.\n\nThe interesting part: revenue is listing fees, but the real lever is buyer demand. Crack the buyer side and the rest follows. It's a clean, winnable puzzle for someone who knows how to manufacture demand in a niche.",
         "Live · ~zero traction",
         "All of growth",

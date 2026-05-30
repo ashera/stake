@@ -16,8 +16,8 @@ export async function POST() {
   if (!pool) return NextResponse.json({ ok: false, error: "Database isn't configured." }, { status: 503 });
 
   const { rows } = await pool.query(
-    `INSERT INTO products (name, badge, published, position)
-     VALUES ('New product', 'Open · 1 spot', false,
+    `INSERT INTO products (name, status, spots, published, position)
+     VALUES ('New product', 'Open', 1, false,
              COALESCE((SELECT MAX(position) + 1 FROM products), 0))
      RETURNING ${PRODUCT_COLUMNS}`
   );

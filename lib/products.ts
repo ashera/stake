@@ -4,7 +4,8 @@ export type Product = {
   id?: string;
   name: string;
   category: string;
-  badge: string;
+  status: string;
+  spots: number;
   description: string;
   stage: string;
   mandate: string;
@@ -17,7 +18,8 @@ type ProductRow = {
   id: number | string;
   name: string;
   category: string | null;
-  badge: string | null;
+  status: string | null;
+  spots: number | null;
   description: string | null;
   stage: string | null;
   mandate: string | null;
@@ -29,14 +31,15 @@ type ProductRow = {
 // Columns selected wherever a full product is read, in the order the mapper
 // expects.
 export const PRODUCT_COLUMNS =
-  "id, name, category, badge, description, stage, mandate, lever, deal_summary, published";
+  "id, name, category, status, spots, description, stage, mandate, lever, deal_summary, published";
 
 export function mapProductRow(r: ProductRow): Product {
   return {
     id: String(r.id),
     name: r.name,
     category: r.category ?? "",
-    badge: r.badge ?? "",
+    status: r.status ?? "Open",
+    spots: r.spots ?? 0,
     description: r.description ?? "",
     stage: r.stage ?? "",
     mandate: r.mandate ?? "",
@@ -53,7 +56,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
   {
     name: "Frockd.com.au",
     category: "Formal-dress marketplace · Australia",
-    badge: "Open · 1 spot",
+    status: "Open",
+    spots: 1,
     description:
       "A working marketplace where people list their formal dresses. The product is built and live — listings convert when buyers show up. Right now it has almost no audience.\n\nThe interesting part: revenue is listing fees, but the real lever is buyer demand. Crack the buyer side and the rest follows. It's a clean, winnable puzzle for someone who knows how to manufacture demand in a niche.",
     stage: "Live · ~zero traction",

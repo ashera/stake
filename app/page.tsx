@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getDealTerms } from "@/lib/deal";
 import { getPublishedProducts } from "@/lib/products";
+import { formatBadge } from "@/lib/badge";
 import ApplyForm from "./ApplyForm";
 
 export default async function Home() {
@@ -158,7 +159,7 @@ export default async function Home() {
               return (
                 <div className="opp-card" key={p.id ?? i}>
                   <div className="opp-top">
-                    <span className="badge">{p.badge}</span>
+                    <span className="badge">{formatBadge(p.status, p.spots)}</span>
                     <span style={{ color: "var(--bone-dim)", fontSize: 14 }}>{p.category}</span>
                   </div>
                   <div className="opp-body">

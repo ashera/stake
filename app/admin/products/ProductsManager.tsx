@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { formatBadge } from "@/lib/badge";
 
 export type Product = {
   id: string;
   name: string;
   category: string;
-  badge: string;
+  status: string;
+  spots: number;
   description: string;
   stage: string;
   mandate: string;
@@ -14,6 +16,8 @@ export type Product = {
   dealSummary: string;
   published: boolean;
 };
+
+const STATUS_OPTIONS = ["Open", "Coming soon", "Filled", "Closed"];
 
 export default function ProductsManager({ initialProducts }: { initialProducts: Product[] }) {
   // Local state is the source of truth after mount; the public landing page
@@ -52,7 +56,8 @@ export default function ProductsManager({ initialProducts }: { initialProducts: 
         body: JSON.stringify({
           name: p.name,
           category: p.category,
-          badge: p.badge,
+          status: p.status,
+          spots: p.spots,
           description: p.description,
           stage: p.stage,
           mandate: p.mandate,
@@ -166,28 +171,50 @@ export default function ProductsManager({ initialProducts }: { initialProducts: 
                 onChange={(e) => editLocal(p.id, { name: e.target.value })}
               />
             </div>
+            <div className="field">
+              <label>
+                Category <span>(line beside the pill)</span>
+              </label>
+              <input
+                type="text"
+                value={p.category}
+                onChange={(e) => editLocal(p.id, { category: e.target.value })}
+                placeholder="Formal-dress marketplace · Australia"
+              />
+            </div>
             <div className="row2">
               <div className="field">
-                <label>
-                  Category <span>(line beside the badge)</span>
-                </label>
-                <input
-                  type="text"
-                  value={p.category}
-                  onChange={(e) => editLocal(p.id, { category: e.target.value })}
-                  placeholder="Formal-dress marketplace · Australia"
-                />
+                <label>Status</label>
+                <select
+                  value={p.status}
+                  onChange={(e) => editLocal(p.id, { status: e.target.value })}
+                >
+                  {!STATUS_OPTIONS.includes(p.status) && p.status && (
+                    <option value={p.status}>{p.status}</option>
+                  )}
+                  {STATUS_OPTIONS.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="field">
-                <label>Badge</label>
+                <label>
+                  Spots <span>(0 hides the count)</span>
+                </label>
                 <input
-                  type="text"
-                  value={p.badge}
-                  onChange={(e) => editLocal(p.id, { badge: e.target.value })}
-                  placeholder="Open · 1 spot"
+                  type="number"
+                  min={0}
+                  value={p.spots}
+                  onChange={(e) => editLocal(p.id, { spots: Number(e.target.value) })}
                 />
               </div>
             </div>
+            <p className="note">
+              The landing-page pill combines these, e.g.{" "}
+              <strong>{formatBadge(p.status, p.spots) || "—"}</strong>.
+            </p>
             <div className="field">
               <label>
                 Description <span>(blank line separates paragraphs)</span>

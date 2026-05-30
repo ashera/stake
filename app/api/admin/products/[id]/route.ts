@@ -10,7 +10,8 @@ type Params = { params: { id: string } };
 type UpdateBody = {
   name?: string;
   category?: string;
-  badge?: string;
+  status?: string;
+  spots?: number;
   description?: string;
   stage?: string;
   mandate?: string;
@@ -41,16 +42,21 @@ export async function PATCH(req: Request, { params }: Params) {
   if (!pool) return NextResponse.json({ ok: false, error: "Database isn't configured." }, { status: 503 });
 
   const trim = (s?: string) => (s || "").trim() || null;
+  const status = (body.status || "").trim() || "Open";
+  const spotsNum = Number(body.spots);
+  const spots = Number.isFinite(spotsNum) ? Math.max(0, Math.trunc(spotsNum)) : 1;
+
   const { rows } = await pool.query(
     `UPDATE products
-        SET name = $1, category = $2, badge = $3, description = $4, stage = $5,
-            mandate = $6, lever = $7, deal_summary = $8, published = $9
-      WHERE id = $10
+        SET name = $1, category = $2, status = $3, spots = $4, description = $5,
+            stage = $6, mandate = $7, lever = $8, deal_summary = $9, published = $10
+      WHERE id = $11
       RETURNING ${PRODUCT_COLUMNS}`,
     [
       name,
       trim(body.category),
-      trim(body.badge),
+      status,
+      spots,
       trim(body.description),
       trim(body.stage),
       trim(body.mandate),
