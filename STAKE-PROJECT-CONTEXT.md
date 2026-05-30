@@ -6,7 +6,7 @@
 
 ## One-liner
 
-A two-sided marketplace ("Stake" — working name, change it) that pairs technical builders who've shipped a product with growth/marketing partners on a **revenue-share** basis, and acts as the **trust + verification layer** (verifies revenue, handles payouts) so two strangers can do a deal. Pilot product: **Frockd.com.au**.
+A two-sided marketplace (**Traxn** — domain `traxnhq.com`) that pairs technical builders who've shipped a product with growth/marketing partners on a **revenue-share** basis, and acts as the **trust + verification layer** (verifies revenue, handles payouts) so two strangers can do a deal. Pilot product: **Frockd.com.au**.
 
 ## Who I am / origin
 
@@ -78,7 +78,7 @@ Indie Hackers, r/SaaS, r/marketing, MicroConf / SaaS-growth Slacks, build-in-pub
 2. **Attribution** — clean at $0 baseline; gets murky the moment there's an existing revenue baseline.
 3. **Trust** — the verification/payout layer is the answer, but has to work day one.
 4. **Vibe-code tension** — if an idea is simple enough to build in a weekend, the marketer may not need a builder at all; builders are truly needed only for harder builds, which revive time-risk. Don't let the middle hollow out.
-5. **Naming** — "Stake" is a placeholder.
+5. **Naming** — decided: **Traxn**, domain `traxnhq.com` (exact `traxn.com` taken; note possible confusion with the "Tracxn" company — worth a trademark check before heavy spend).
 
 ---
 

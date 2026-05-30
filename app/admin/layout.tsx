@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import LogoutButton from "./LogoutButton";
 
-export const metadata = { title: "Stake — Admin" };
+export const metadata = { title: "Traxn — Admin" };
 
 // Authoritative gate for everything under /admin. API routes re-check on their
 // own; this protects the rendered pages.
@@ -17,7 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <nav className="admin-nav">
         <Link href="/" className="brand">
           <span className="dot" />
-          Stake <small>admin</small>
+          Traxn <small>admin</small>
         </Link>
         <div className="admin-links">
           <Link href="/admin">Applications</Link>

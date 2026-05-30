@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import LoginForm from "./LoginForm";
 
-export const metadata = { title: "Stake — Sign in" };
+export const metadata = { title: "Traxn — Sign in" };
 
 // Already signed in as an admin? Skip the form.
 export default async function LoginPage() {
@@ -15,7 +15,7 @@ export default async function LoginPage() {
       <div className="auth-card">
         <Link href="/" className="brand">
           <span className="dot" />
-          Stake <small>admin</small>
+          Traxn <small>admin</small>
         </Link>
         <h1>Sign in</h1>
         <p className="lede">Admin access to the concierge dashboard.</p>

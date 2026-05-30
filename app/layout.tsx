@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Stake — own growth for products that already work",
+  title: "Traxn — own growth for products that already work",
   description:
     "We hand a great growth person one live product that works but has no audience. You own all of growth and take a real share of every dollar you bring in. No retainer, no equity gamble.",
 };

@@ -1,4 +1,4 @@
-# Stake (working name)
+# Traxn
 
 Concierge-MVP landing page for a rev-share marketplace pairing technical builders
 with growth partners. This is **v0**: its only job is to test the make-or-break
@@ -178,4 +178,5 @@ landing page reads them live, falling back to `DEFAULT_DEAL_TERMS` in
 
 - The deal terms shown (30% / $0 baseline / 24 months) are illustrative — match
   them to the term sheet before this goes in front of a real marketer.
-- "Stake" is a placeholder name; change it in `layout.tsx`, `page.tsx`, and here.
+- The platform name is **Traxn** (domain `traxnhq.com`). The brand string lives in
+  `app/layout.tsx`, `app/page.tsx`, and the admin/login layouts.

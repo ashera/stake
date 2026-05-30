@@ -17,7 +17,7 @@ export default async function Home() {
       <nav>
         <Link href="/" className="brand">
           <span className="dot" />
-          Stake
+          Traxn
         </Link>
         {user ? (
           user.isAdmin ? (
@@ -199,7 +199,7 @@ export default async function Home() {
       </section>
 
       <footer>
-        <div>Stake · working name, change me</div>
+        <div>Traxn</div>
         <div>A concierge experiment — humans behind the curtain, on purpose.</div>
       </footer>
     </div>
