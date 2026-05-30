@@ -114,6 +114,29 @@ git remote add origin https://github.com/<you>/<repo>.git
 git push -u origin main
 ```
 
+## Admin login & user management
+
+The site has an admin-only login (no public signup yet) gating a concierge
+dashboard at `/admin` — view applications and manage users. Auth is rolled in
+`lib/auth.ts`: scrypt password hashing (Node built-in, no native dependency) and
+random session tokens stored as SHA-256 in the `sessions` table.
+
+### Create the first admin
+
+After the schema is applied (`db:init`), seed an admin:
+
+```bash
+npm run create-admin -- you@email.com "a-strong-password"
+# on Railway:
+railway run npm run create-admin -- you@email.com "a-strong-password"
+```
+
+Re-running with an existing email resets that user's password and re-grants
+admin. Then sign in at `/login`; the dashboard lives at `/admin`.
+
+From **Admin → Users** you can add users, flag/unflag admin, and delete users.
+Guardrails: you can't demote or delete yourself, or remove the last admin.
+
 ## Notes
 
 - The deal terms shown (30% / $0 baseline / 24 months) are illustrative — match

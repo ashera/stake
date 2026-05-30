@@ -124,3 +124,76 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
   .deal{padding:32px}.form-card{padding:30px}
   header{padding:60px 0 50px}
 }
+
+/* ── Auth / login ───────────────────────────────────────────────────────── */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px;position:relative;z-index:1}
+.auth-card{width:100%;max-width:420px;background:var(--ink-2);border:1px solid var(--rule);border-radius:22px;padding:40px}
+.auth-card .brand{margin-bottom:28px}
+.auth-card h1{font-family:var(--serif);font-weight:400;font-size:34px;letter-spacing:-.8px;margin-bottom:8px}
+.auth-card .lede{color:var(--bone-dim);font-size:15px;margin-bottom:28px}
+
+/* ── Admin shell ────────────────────────────────────────────────────────── */
+.admin-shell{max-width:1100px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
+.admin-nav{display:flex;align-items:center;gap:24px;padding:22px 0;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.admin-links{display:flex;gap:6px;margin-left:8px}
+.admin-links a{font-size:15px;font-weight:600;color:var(--bone-dim);text-decoration:none;padding:8px 14px;border-radius:30px;transition:color .2s,background .2s}
+.admin-links a:hover{color:var(--bone);background:rgba(244,239,230,.05)}
+.admin-who{margin-left:auto;display:flex;align-items:center;gap:14px}
+.admin-who span{font-size:14px;color:var(--bone-dim)}
+.admin-main{padding:44px 0 90px}
+.admin-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+.admin-head h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4vw,40px);letter-spacing:-.8px}
+.admin-head .count{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--bone-dim);border:1px solid var(--rule);padding:4px 10px;border-radius:20px}
+.admin-main .lede{color:var(--bone-dim);max-width:60ch;margin-bottom:32px}
+.empty{border:1px dashed var(--rule);border-radius:16px;padding:48px;text-align:center;color:var(--bone-dim)}
+
+/* small buttons (shared by admin + auth) */
+.btn-sm{font-weight:600;font-size:14px;padding:9px 16px;border-radius:30px;border:1px solid var(--rule);background:transparent;color:var(--bone);cursor:pointer;transition:transform .15s,border-color .2s,background .2s,box-shadow .2s}
+.btn-sm:disabled{opacity:.45;cursor:default}
+.btn-primary-sm{background:var(--acid);color:var(--ink);border-color:var(--acid)}
+.btn-primary-sm:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 22px rgba(198,242,78,.22)}
+.btn-ghost-sm:hover:not(:disabled){border-color:var(--bone-dim)}
+.btn-danger-sm{color:#ffb4a2;border-color:rgba(255,180,162,.3)}
+.btn-danger-sm:hover:not(:disabled){border-color:#ffb4a2;background:rgba(255,180,162,.08)}
+
+/* application cards */
+.cards{display:flex;flex-direction:column;gap:16px}
+.app-card{border:1px solid var(--rule);border-radius:18px;padding:24px 26px;background:linear-gradient(180deg,var(--ink-2),transparent)}
+.app-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px}
+.app-card-top h3{font-size:19px;font-weight:600;margin-bottom:2px}
+.muted-link{color:var(--bone-dim);font-size:14px;text-decoration:none}
+.muted-link:hover{color:var(--acid)}
+.app-card .date{font-size:13px;color:var(--bone-dim);white-space:nowrap}
+.app-card .proof{color:var(--bone-dim);font-size:15px;margin-bottom:16px;white-space:pre-wrap}
+.app-meta{display:flex;flex-wrap:wrap;gap:10px}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--bone);background:rgba(244,239,230,.05);border:1px solid var(--rule);padding:6px 12px;border-radius:30px}
+.pill-k{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--bone-dim)}
+.pill-link{text-decoration:none;color:var(--acid)}
+.pill-link:hover{border-color:rgba(198,242,78,.4)}
+.pill-admin{background:rgba(198,242,78,.12);border-color:rgba(198,242,78,.35);color:var(--acid);font-weight:600}
+
+/* users management */
+.users{display:flex;flex-direction:column;gap:34px}
+.user-form{background:var(--ink-2);border:1px solid var(--rule);border-radius:18px;padding:28px}
+.user-form h3{font-size:18px;font-weight:600;margin-bottom:18px}
+.check-line{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--bone-dim);margin:4px 0 20px;cursor:pointer}
+.check-line input{width:17px;height:17px;accent-color:var(--acid);cursor:pointer}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{text-align:left;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--bone-dim);font-weight:600;padding:0 14px 12px;border-bottom:1px solid var(--rule)}
+.data-table td{padding:16px 14px;border-bottom:1px solid var(--rule);font-size:15px;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table .muted{color:var(--bone-dim);font-size:14px}
+.ta-right{text-align:right}
+.actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.you{margin-left:10px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--bone-dim);border:1px solid var(--rule);padding:2px 7px;border-radius:14px}
+
+@media(max-width:600px){
+  .auth-card{padding:30px}
+  .data-table thead{display:none}
+  .data-table,.data-table tbody,.data-table tr,.data-table td{display:block;width:100%}
+  .data-table tr{border:1px solid var(--rule);border-radius:14px;padding:8px 12px;margin-bottom:12px}
+  .data-table td{border-bottom:none;padding:8px 2px}
+  .actions{justify-content:flex-start}
+}
