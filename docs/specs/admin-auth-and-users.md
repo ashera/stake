@@ -21,9 +21,11 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 ## Data model
 
 - `users` — `id, email (unique), name, password_hash (nullable), is_admin,
-  created_at`. `password_hash` format `scrypt$<saltHex>$<hashHex>`; **null** for
-  passwordless leads.
+  email_verified_at (nullable), created_at`. `password_hash` format
+  `scrypt$<saltHex>$<hashHex>`; **null** for passwordless leads.
 - `sessions` — `id (= sha256 of the cookie token), user_id, expires_at, created_at`.
+- `email_verifications` — verification / magic-link tokens; see
+  [email-verification](./email-verification.md).
 
 ## Behaviour
 
@@ -31,8 +33,8 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 - **Sessions:** a random 32-byte token lives in an httpOnly/SameSite=lax/secure
   cookie (`stake_session`); only its SHA-256 is stored, so a DB leak can't be
   replayed. 30-day expiry.
-- **`getCurrentUser()`** returns `{ id, email, isAdmin, hasPassword }` (the last
-  drives the "set a password" prompt on the deal page).
+- **`getCurrentUser()`** returns `{ id, email, isAdmin, hasPassword, emailVerified }`
+  (the last two drive the "set a password" and "verify your email" prompts).
 - **Protection:** `app/admin/layout.tsx` calls `getCurrentUser()` and redirects
   non-admins to `/login`. Every admin API re-checks `getAdmin()` (defence in depth).
 - **User management** (`/admin/users`): list, add user (email + password +
@@ -51,6 +53,8 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 - `POST /api/auth/logout` — clears the session.
 - `POST /api/auth/set-password` — `{ password }` for the signed-in user (used by
   marketer leads to secure a passwordless account).
+- Email verification + magic-link endpoints (`/verify-email`, `/api/auth/magic-link`,
+  `/api/auth/resend-verification`) — see [email-verification](./email-verification.md).
 - `POST /api/admin/users` — create `{ email, password, isAdmin }` (409 on dup email).
 - `PATCH /api/admin/users/[id]` — `{ isAdmin }` (blocks self-demote / last admin).
 - `DELETE /api/admin/users/[id]` — (blocks self / last admin).
@@ -70,7 +74,6 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 
 ## Open questions / risks
 
-- No email verification yet — a lead's email is unverified, so a passwordless user
-  can only return in the same browser until they set a password (magic-link is a
-  future add).
+- Email verification + magic-link sign-in now exist (see
+  [email-verification](./email-verification.md)); no rate limiting on them yet.
 - No session rotation on privilege change.

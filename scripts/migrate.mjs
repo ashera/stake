@@ -149,10 +149,11 @@ try {
         AND NOT EXISTS (SELECT 1 FROM products WHERE featured = true)`
   );
 
-  // 1e. Users gain a nullable `name` and an optional password — marketer leads are
-  //     created passwordless by the express-interest wizard. Idempotent.
+  // 1e. Users gain a nullable `name`, an optional password, and an email-verified
+  //     timestamp — marketer leads are created passwordless by the wizard. Idempotent.
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT`);
   await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL`);
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMPTZ`);
 
   // 1f. Retire the legacy applications table: fold each application into a
   //     passwordless user + a product-less deal, then drop it. Guarded on the

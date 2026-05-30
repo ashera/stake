@@ -13,13 +13,9 @@ export default async function SiteNav() {
         Traxn
       </Link>
       {user ? (
-        user.isAdmin ? (
-          <Link className="nav-account" href="/admin">
-            {user.email}
-          </Link>
-        ) : (
-          <span className="nav-account">{user.email}</span>
-        )
+        <Link className="nav-account" href={user.isAdmin ? "/admin" : "/deals"}>
+          {user.email}
+        </Link>
       ) : (
         <Link className="nav-login" href="/login">
           Log in

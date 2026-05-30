@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
-import { getCurrentUser, hashPassword, createSession } from "@/lib/auth";
+import {
+  getCurrentUser,
+  hashPassword,
+  createSession,
+  createEmailVerificationToken,
+} from "@/lib/auth";
+import { baseUrl, sendVerificationEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -63,13 +69,14 @@ export async function POST(req: Request) {
   const current = await getCurrentUser();
   let userId: string;
   let makeSession = false;
+  let needVerify = false;
 
   if (current) {
     // Already signed in — the deal belongs to them.
     userId = current.id;
   } else {
     const { rows: existing } = await pool.query(
-      `SELECT id, password_hash FROM users WHERE email = $1`,
+      `SELECT id, password_hash, email_verified_at FROM users WHERE email = $1`,
       [email]
     );
     if (existing.length > 0 && existing[0].password_hash) {
@@ -85,6 +92,7 @@ export async function POST(req: Request) {
     }
     if (existing.length > 0) {
       userId = String(existing[0].id);
+      needVerify = existing[0].email_verified_at == null;
       await pool.query(
         `UPDATE users
             SET name = COALESCE(NULLIF(name, ''), $1),
@@ -99,6 +107,7 @@ export async function POST(req: Request) {
         [email, name, password ? hashPassword(password) : null]
       );
       userId = String(rows[0].id);
+      needVerify = true;
     }
     makeSession = true;
   }
@@ -126,5 +135,17 @@ export async function POST(req: Request) {
   }
 
   if (makeSession) await createSession(userId);
+
+  // Fire off a verification / sign-in link for unverified leads (best-effort —
+  // never block the deal on email).
+  if (needVerify) {
+    try {
+      const token = await createEmailVerificationToken(userId);
+      if (token) await sendVerificationEmail(email, `${baseUrl(req)}/verify-email?token=${token}`);
+    } catch (err) {
+      console.error("[deals] verification email failed:", err);
+    }
+  }
+
   return NextResponse.json({ ok: true, dealId });
 }

@@ -74,6 +74,18 @@ export async function getDealById(id: string): Promise<Deal | null> {
   }
 }
 
+// A user's own deals, newest first — for the "my deals" page.
+export async function getDealsForUser(userId: string): Promise<Deal[]> {
+  const pool = getPool();
+  if (!pool) return [];
+  try {
+    const { rows } = await pool.query(`${SELECT} WHERE d.user_id = $1 ORDER BY d.created_at DESC`, [userId]);
+    return rows.map(mapDeal);
+  } catch {
+    return [];
+  }
+}
+
 // All deals, newest first — for the admin dashboard.
 export async function getAllDeals(): Promise<Deal[]> {
   const pool = getPool();

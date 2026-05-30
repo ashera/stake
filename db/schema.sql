@@ -5,13 +5,25 @@
 -- "express interest" wizard from just a name + email and may be passwordless
 -- (encouraged to set a password later). `is_admin` gates the /admin dashboard.
 CREATE TABLE IF NOT EXISTS users (
-  id            BIGSERIAL PRIMARY KEY,
-  email         TEXT        NOT NULL UNIQUE,
-  name          TEXT,
-  password_hash TEXT,                   -- scrypt; nullable (passwordless leads)
-  is_admin      BOOLEAN     NOT NULL DEFAULT false,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+  id                BIGSERIAL PRIMARY KEY,
+  email             TEXT        NOT NULL UNIQUE,
+  name              TEXT,
+  password_hash     TEXT,                   -- scrypt; nullable (passwordless leads)
+  is_admin          BOOLEAN     NOT NULL DEFAULT false,
+  email_verified_at TIMESTAMPTZ,            -- null until the email is confirmed
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Email verification / magic-link tokens. `id` is the SHA-256 of the token sent
+-- in the email; single-use and short-lived.
+CREATE TABLE IF NOT EXISTS email_verifications (
+  id         TEXT        PRIMARY KEY,   -- sha256(token)
+  user_id    BIGINT      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS email_verifications_user_idx ON email_verifications (user_id);
 
 -- Sessions — one row per active login. `id` is the SHA-256 of the random token
 -- held in the cookie, so a leaked DB can't be replayed as a live session.

@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getDealById } from "@/lib/deals";
 import SiteNav from "../../SiteNav";
 import SiteFooter from "../../SiteFooter";
+import VerifyBanner from "../../VerifyBanner";
 import SetPasswordForm from "./SetPasswordForm";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,7 @@ export default async function DealPage({ params }: { params: { id: string } }) {
       <SiteNav />
 
       <section className="deal-page">
+        {owner && !user.emailVerified && <VerifyBanner email={user.email} />}
         <div className="eyebrow">{owner ? "Your deal" : "Deal"}</div>
         <div className="deal-title">
           <h1>{deal.productName ?? "General interest"}</h1>
@@ -75,8 +77,16 @@ export default async function DealPage({ params }: { params: { id: string } }) {
         )}
 
         <p className="note">
+          {owner && (
+            <>
+              <Link href="/deals" className="muted-link">
+                All your deals
+              </Link>
+              {" · "}
+            </>
+          )}
           <Link href="/how-it-works#opportunities" className="muted-link">
-            ← Browse other opportunities
+            Browse other opportunities →
           </Link>
         </p>
       </section>

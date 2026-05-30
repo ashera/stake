@@ -13,7 +13,13 @@ import { getPool } from "@/lib/db";
 const COOKIE_NAME = "stake_session";
 const SESSION_TTL_DAYS = 30;
 
-export type AuthUser = { id: string; email: string; isAdmin: boolean; hasPassword: boolean };
+export type AuthUser = {
+  id: string;
+  email: string;
+  isAdmin: boolean;
+  hasPassword: boolean;
+  emailVerified: boolean;
+};
 
 // --- Password hashing (scrypt; built into Node, nothing to compile) ----------
 
@@ -79,7 +85,9 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   if (!pool) return null;
 
   const { rows } = await pool.query(
-    `SELECT u.id, u.email, u.is_admin, (u.password_hash IS NOT NULL) AS has_password
+    `SELECT u.id, u.email, u.is_admin,
+            (u.password_hash IS NOT NULL) AS has_password,
+            (u.email_verified_at IS NOT NULL) AS email_verified
        FROM sessions s
        JOIN users u ON u.id = s.user_id
       WHERE s.id = $1 AND s.expires_at > now()`,
@@ -92,6 +100,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     email: rows[0].email,
     isAdmin: rows[0].is_admin,
     hasPassword: rows[0].has_password,
+    emailVerified: rows[0].email_verified,
   };
 }
 
@@ -100,4 +109,39 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 export async function getAdmin(): Promise<AuthUser | null> {
   const user = await getCurrentUser();
   return user && user.isAdmin ? user : null;
+}
+
+// --- Email verification / magic-link tokens -----------------------------------
+
+const VERIFY_TTL_HOURS = 48;
+
+// Create a single-use token for a user and return the raw value (to embed in the
+// email link). Only the SHA-256 is stored.
+export async function createEmailVerificationToken(userId: string): Promise<string | null> {
+  const pool = getPool();
+  if (!pool) return null;
+  const token = randomBytes(32).toString("hex");
+  const expires = new Date(Date.now() + VERIFY_TTL_HOURS * 60 * 60 * 1000);
+  await pool.query(
+    `INSERT INTO email_verifications (id, user_id, expires_at) VALUES ($1, $2, $3)`,
+    [hashToken(token), userId, expires]
+  );
+  return token;
+}
+
+// Consume a token: if valid, mark the user verified, clear their tokens, and
+// return the user id. Returns null for an unknown/expired token.
+export async function verifyEmailToken(token: string): Promise<string | null> {
+  const pool = getPool();
+  if (!pool) return null;
+  const h = hashToken(token);
+  const { rows } = await pool.query(
+    `SELECT user_id FROM email_verifications WHERE id = $1 AND expires_at > now()`,
+    [h]
+  );
+  if (rows.length === 0) return null;
+  const userId = String(rows[0].user_id);
+  await pool.query(`UPDATE users SET email_verified_at = now() WHERE id = $1`, [userId]);
+  await pool.query(`DELETE FROM email_verifications WHERE user_id = $1`, [userId]);
+  return userId;
 }

@@ -2,7 +2,7 @@
 
 - **Status:** Active
 - **Last updated:** 2026-05-31
-- **Code:** `lib/deals.ts`, `app/express-interest/[id]/*`, `app/deal/[id]/*`, `app/api/deals/route.ts`, `app/api/auth/set-password/route.ts`, `app/admin/page.tsx`, `app/admin/DealsManager.tsx`, `app/api/admin/deals/[id]/route.ts`, `db/schema.sql`
+- **Code:** `lib/deals.ts`, `app/express-interest/[id]/*`, `app/deal/[id]/*`, `app/deals/page.tsx`, `app/api/deals/route.ts`, `app/api/auth/set-password/route.ts`, `app/admin/page.tsx`, `app/admin/DealsManager.tsx`, `app/api/admin/deals/[id]/route.ts`, `db/schema.sql`
 
 ## Summary
 
@@ -44,10 +44,14 @@ on the deal. It replaces the old generic application form.
   - Not signed in, email belongs to a **password-protected** account → 409
     `requiresLogin` (don't write to someone's account anonymously); the wizard
     prompts them to log in.
+- On submit, an unverified lead is sent a verification / sign-in link (best-effort;
+  see [email-verification](./email-verification.md)).
 - **Deal page** (`/deal/[id]`): owner (via session) or admin only, else `notFound`/
-  redirect to login. Shows the submission summary + status. If the owner has no
-  password, a **Set a password** prompt (`SetPasswordForm` → `POST
-  /api/auth/set-password`) lets them secure the account to return later.
+  redirect to login. Shows the submission summary + status, a verification banner
+  while unverified, and — if the owner has no password — a **Set a password**
+  prompt (`SetPasswordForm` → `POST /api/auth/set-password`).
+- **My deals** (`/deals`): a signed-in user's own deals, newest first
+  (`getDealsForUser`). The nav links a marketer's email here (admins go to `/admin`).
 - **Admin** (`/admin`, the dashboard): `DealsManager` lists all deals, sets status
   inline, links to each deal page, and can delete.
 
@@ -72,7 +76,8 @@ on the deal. It replaces the old generic application form.
 
 ## Open questions / risks
 
-- **Return path for passwordless users** is same-browser-only until they set a
-  password (no email verification / magic link yet).
 - DB-dependent flows (wizard submit, deal page, status updates) can't be tested
   without Postgres; first real run is the Railway deploy.
+- Passwordless return now works via the emailed magic link (see
+  [email-verification](./email-verification.md)); setting a password is still the
+  most reliable path.
