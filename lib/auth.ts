@@ -13,7 +13,7 @@ import { getPool } from "@/lib/db";
 const COOKIE_NAME = "stake_session";
 const SESSION_TTL_DAYS = 30;
 
-export type AuthUser = { id: string; email: string; isAdmin: boolean };
+export type AuthUser = { id: string; email: string; isAdmin: boolean; hasPassword: boolean };
 
 // --- Password hashing (scrypt; built into Node, nothing to compile) ----------
 
@@ -79,7 +79,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   if (!pool) return null;
 
   const { rows } = await pool.query(
-    `SELECT u.id, u.email, u.is_admin
+    `SELECT u.id, u.email, u.is_admin, (u.password_hash IS NOT NULL) AS has_password
        FROM sessions s
        JOIN users u ON u.id = s.user_id
       WHERE s.id = $1 AND s.expires_at > now()`,
@@ -87,7 +87,12 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   );
 
   if (rows.length === 0) return null;
-  return { id: String(rows[0].id), email: rows[0].email, isAdmin: rows[0].is_admin };
+  return {
+    id: String(rows[0].id),
+    email: rows[0].email,
+    isAdmin: rows[0].is_admin,
+    hasPassword: rows[0].has_password,
+  };
 }
 
 // Guard for admin API routes. Returns the user, or null if not an admin —

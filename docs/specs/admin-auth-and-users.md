@@ -6,21 +6,23 @@
 
 ## Summary
 
-A lean, roll-our-own authentication layer gating the `/admin` concierge
-dashboard. Admin-only accounts (no public signup yet); admins can manage other
-users.
+A lean, roll-our-own authentication layer. Two kinds of users share one table:
+**admins** (gate the `/admin` dashboard) and **marketer leads** created by the
+express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 
 ## Goals / Non-goals
 
-- **Goals:** secure admin login; session management; create/manage users; flag
-  users as admin to gate admin features.
-- **Non-goals:** public self-serve registration, OAuth/social login, password
-  reset emails, MFA. (Admin-only by choice; can open later without rework.)
+- **Goals:** secure admin login; session management; admin user management;
+  create lightweight (optionally passwordless) marketer users; let a user set a
+  password later.
+- **Non-goals:** OAuth/social login, password-reset emails, email verification,
+  magic-link return, MFA.
 
 ## Data model
 
-- `users` — `id, email (unique), password_hash, is_admin, created_at`.
-  `password_hash` format: `scrypt$<saltHex>$<hashHex>`.
+- `users` — `id, email (unique), name, password_hash (nullable), is_admin,
+  created_at`. `password_hash` format `scrypt$<saltHex>$<hashHex>`; **null** for
+  passwordless leads.
 - `sessions` — `id (= sha256 of the cookie token), user_id, expires_at, created_at`.
 
 ## Behaviour
@@ -29,6 +31,8 @@ users.
 - **Sessions:** a random 32-byte token lives in an httpOnly/SameSite=lax/secure
   cookie (`stake_session`); only its SHA-256 is stored, so a DB leak can't be
   replayed. 30-day expiry.
+- **`getCurrentUser()`** returns `{ id, email, isAdmin, hasPassword }` (the last
+  drives the "set a password" prompt on the deal page).
 - **Protection:** `app/admin/layout.tsx` calls `getCurrentUser()` and redirects
   non-admins to `/login`. Every admin API re-checks `getAdmin()` (defence in depth).
 - **User management** (`/admin/users`): list, add user (email + password +
@@ -45,6 +49,8 @@ users.
 - `POST /api/auth/login` — `{ email, password }`; sets session cookie. Returns the
   **same** error for unknown email vs wrong password (non-enumerating).
 - `POST /api/auth/logout` — clears the session.
+- `POST /api/auth/set-password` — `{ password }` for the signed-in user (used by
+  marketer leads to secure a passwordless account).
 - `POST /api/admin/users` — create `{ email, password, isAdmin }` (409 on dup email).
 - `PATCH /api/admin/users/[id]` — `{ isAdmin }` (blocks self-demote / last admin).
 - `DELETE /api/admin/users/[id]` — (blocks self / last admin).
@@ -57,10 +63,14 @@ users.
 - **scrypt, not bcrypt/argon2** — built into Node, no native module to compile, so
   it won't break the Railway/Nixpacks build.
 - **Hash the session token in the DB** — a DB read never yields a usable token.
-- **Admin-only accounts** — aligned with the v0 roadmap; public registration is
-  deferred (see [landing-and-applications](./landing-and-applications.md)).
+- **Passwordless marketer users** — created by the wizard from name + email to keep
+  friction near zero; they get a session to view their deal and are encouraged to
+  set a password to return. No anonymous writes to credentialed accounts (see
+  [deals](./deals.md)).
 
 ## Open questions / risks
 
-- No session rotation on privilege change and no password-change UI yet — fine for
-  an admin-only tool; revisit if public registration is ever enabled.
+- No email verification yet — a lead's email is unverified, so a passwordless user
+  can only return in the same browser until they set a password (magic-link is a
+  future add).
+- No session rotation on privilege change.

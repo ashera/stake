@@ -243,6 +243,42 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
   .ref-option-actions{justify-content:flex-start;flex-wrap:wrap}
 }
 
+/* product card footer (express interest button) */
+.opp-foot{padding:22px 34px;border-top:1px solid var(--rule);display:flex;justify-content:flex-end}
+
+/* express-interest wizard */
+.wizard{padding:36px 0 90px;max-width:760px}
+.wizard-head{margin-bottom:24px}
+.wizard-head h1{font-family:var(--serif);font-weight:400;font-size:clamp(28px,5vw,44px);letter-spacing:-1px;margin-top:10px}
+.wizard-head .sub{margin-top:6px;color:var(--bone-dim)}
+.wizard-steps{list-style:none;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;padding:0}
+.wizard-steps li{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--bone-dim);border:1px solid var(--rule);border-radius:30px;padding:6px 14px}
+.wizard-steps li .n{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:rgba(244,239,230,.08);color:var(--bone-dim)}
+.wizard-steps li.is-current{color:var(--bone);border-color:rgba(198,242,78,.5)}
+.wizard-steps li.is-current .n{background:var(--acid);color:var(--ink)}
+.wizard-steps li.is-done .n{background:var(--acid-deep);color:var(--ink)}
+.wizard .form-card h2{font-family:var(--serif);font-weight:400;font-size:26px;margin-bottom:8px}
+.wizard-nav{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:28px}
+
+/* review list (wizard review step + deal page) */
+.review{display:flex;flex-direction:column}
+.review > div{display:flex;flex-direction:column;gap:3px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.review > div:last-child{border-bottom:none}
+.review dt{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--bone-dim)}
+.review dd{font-size:16px;color:var(--bone);white-space:pre-wrap}
+
+/* deal page */
+.deal-page{padding:48px 0 90px;max-width:760px}
+.deal-title{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px}
+.deal-title h1{font-family:var(--serif);font-weight:400;font-size:clamp(28px,5vw,44px);letter-spacing:-1px}
+.deal-page .sub{color:var(--bone-dim);margin:10px 0 26px}
+.deal-card{background:var(--ink-2);border:1px solid var(--rule);border-radius:18px;padding:26px 30px;margin-bottom:20px}
+.deal-card.secure h3{font-size:18px;font-weight:600;margin-bottom:8px}
+.deal-card.secure p{color:var(--bone-dim);font-size:15px;margin-bottom:16px}
+.secure-form{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.secure-form .field{margin-bottom:0;flex:1;min-width:220px}
+.pill-status{background:rgba(198,242,78,.12);border-color:rgba(198,242,78,.35);color:var(--acid);text-transform:capitalize}
+
 @media(max-width:600px){
   .auth-card{padding:30px}
   .data-table thead{display:none}

@@ -17,8 +17,9 @@ it, so settled questions don't get re-opened.
 
 | Spec | What it covers |
 |---|---|
-| [landing-and-applications](./landing-and-applications.md) | Public landing page + marketer application capture (the v0 concierge MVP) |
-| [admin-auth-and-users](./admin-auth-and-users.md) | Admin-only login, sessions, and user management |
+| [landing-and-applications](./landing-and-applications.md) | Public site: home (featured) + /how-it-works; apply via the express-interest wizard |
+| [deals](./deals.md) | First-class deal linking a marketer to a product, created by the express-interest wizard |
+| [admin-auth-and-users](./admin-auth-and-users.md) | Login, sessions, and user management (admins + passwordless marketer leads) |
 | [deploy-and-migrations](./deploy-and-migrations.md) | Railway deploy via GitHub and migrate-on-deploy |
 | [deal-terms](./deal-terms.md) | DB-backed, admin-managed deal terms on the landing page |
 | [products](./products.md) | DB-backed, admin-managed product/opportunity cards |

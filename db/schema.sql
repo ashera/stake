@@ -1,28 +1,14 @@
--- Stake — concierge MVP schema
--- One table: marketer applications captured from the landing page.
--- Run against your Railway Postgres:  psql "$DATABASE_URL" -f db/schema.sql
---   (or use `npm run db:init` which executes this file for you)
+-- Traxn — schema. Applied idempotently on every deploy by scripts/migrate.mjs
+-- (CREATE ... IF NOT EXISTS; column/data changes are handled in that script).
 
-CREATE TABLE IF NOT EXISTS applications (
-  id          BIGSERIAL PRIMARY KEY,
-  name        TEXT        NOT NULL,
-  email       TEXT        NOT NULL,
-  link        TEXT,
-  proof       TEXT,                 -- "one product you grew + what changed"
-  niche       TEXT,                 -- sharpest channel / niche
-  revshare    TEXT,                 -- would they take rev-share over cash
-  opportunity TEXT        DEFAULT 'frockd',
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS applications_created_at_idx ON applications (created_at DESC);
-
--- Users — admin-only accounts for now (no public signup). Seed the first one
--- with `npm run create-admin`. `is_admin` gates the /admin concierge dashboard.
+-- Users — admins and marketer leads. Marketer users are created by the
+-- "express interest" wizard from just a name + email and may be passwordless
+-- (encouraged to set a password later). `is_admin` gates the /admin dashboard.
 CREATE TABLE IF NOT EXISTS users (
   id            BIGSERIAL PRIMARY KEY,
   email         TEXT        NOT NULL UNIQUE,
-  password_hash TEXT        NOT NULL,   -- scrypt: "scrypt$<saltHex>$<hashHex>"
+  name          TEXT,
+  password_hash TEXT,                   -- scrypt; nullable (passwordless leads)
   is_admin      BOOLEAN     NOT NULL DEFAULT false,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -95,3 +81,24 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE INDEX IF NOT EXISTS products_position_idx ON products (position, id);
+
+-- Deals — the first-class entity linking a marketer (user) to a product. Created
+-- by the "express interest" wizard, which stores the applicant's responses here.
+-- One deal per (user, product). `status` tracks the lifecycle (default 'new').
+CREATE TABLE IF NOT EXISTS deals (
+  id         BIGSERIAL   PRIMARY KEY,
+  user_id    BIGINT      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  product_id BIGINT      REFERENCES products (id) ON DELETE SET NULL,
+  link       TEXT,
+  proof      TEXT,
+  niche      TEXT,
+  revshare   TEXT,
+  note       TEXT,
+  status     TEXT        NOT NULL DEFAULT 'new',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, product_id)
+);
+
+CREATE INDEX IF NOT EXISTS deals_user_idx ON deals (user_id);
+CREATE INDEX IF NOT EXISTS deals_product_idx ON deals (product_id);
+CREATE INDEX IF NOT EXISTS deals_created_idx ON deals (created_at DESC);

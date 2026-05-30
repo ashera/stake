@@ -32,8 +32,10 @@ mandate_id, lever_id, deal_id, published, featured, position, created_at`.
 ## Behaviour
 
 - **Rendering:** the shared `ProductCard` component renders a card (pill via
-  `formatBadge`, description paragraphs, and the four meta rows with the option
-  description shown under each value).
+  `formatBadge`, description paragraphs, the four meta rows with descriptions, and
+  an **Express interest →** button linking to `/express-interest/[id]` — the deal
+  wizard, see [deals](./deals.md)). `getPublishedProductById()` loads a single
+  published product for the wizard's context.
   - **Home** shows the single featured product via `getFeaturedProduct()`.
   - **`/how-it-works`** shows the full list via `getPublishedProducts()` — both
     join the attribute FKs to resolve `{ label, description }`, return only

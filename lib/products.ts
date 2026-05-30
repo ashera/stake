@@ -150,6 +150,19 @@ export async function getPublishedProducts(): Promise<ProductDisplay[]> {
   }
 }
 
+// A single published product by id, for the express-interest wizard's context.
+// Returns null if not found, not published, or the id is invalid.
+export async function getPublishedProductById(id: string): Promise<ProductDisplay | null> {
+  const pool = getPool();
+  if (!pool) return null;
+  try {
+    const { rows } = await pool.query(`${DISPLAY_SELECT} WHERE p.id = $1 AND p.published = true`, [id]);
+    return rows[0] ? mapDisplayRow(rows[0]) : null;
+  } catch {
+    return null;
+  }
+}
+
 // The single product to feature on the home page: the featured published product
 // (lowest position), else the first published product. Degrades to the default
 // product if there's no DB / unmigrated table; null if products exist but none

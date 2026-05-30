@@ -1,12 +1,11 @@
 # Traxn
 
-Concierge-MVP landing page for a rev-share marketplace pairing technical builders
-with growth partners. This is **v0**: its only job is to test the make-or-break
-assumption — *will the right marketers respond?* — by pitching one real, live
-opportunity (Frockd.com.au) and capturing applications.
+Concierge-MVP site for a rev-share marketplace pairing technical builders with
+growth partners. This is **v0**: its job is to test the make-or-break assumption
+— *will the right marketers respond?* — by pitching live opportunities (pilot:
+Frockd.com.au) and capturing interest as **deals** via a per-product wizard.
 
-There is deliberately **no** login, two-sided matching, or payment flow yet.
-A human runs the matching behind the curtain. Build the rest only after this page
+A human runs the matching behind the curtain. Build the rest only after this
 proves marketers bite.
 
 ## Specs
@@ -28,45 +27,44 @@ The product concept, decision chain, and Frockd pilot are in
 
 ```
 app/
-  layout.tsx          root layout + font links
-  page.tsx            the landing page (server component)
-  ApplyForm.tsx       the application form (client component)
-  globals.css         all styling
-  api/apply/route.ts  POST endpoint — saves an application to Postgres
+  page.tsx                  home: hero + featured product (server component)
+  how-it-works/page.tsx     the explanatory page + full opportunity list
+  express-interest/[id]/    the deal wizard (Express interest)
+  deal/[id]/                a marketer's deal summary page
+  ProductCard / SiteNav / SiteFooter  shared public components
+  admin/                    Deals dashboard, products, reference, users, deal terms
+  api/                      deals, auth, and admin endpoints
+  globals.css               all styling
 lib/db.ts             shared Postgres pool (no-op if DATABASE_URL is unset)
-lib/auth.ts           admin auth: scrypt hashing + session cookies
-db/schema.sql         tables: applications, users, sessions
-scripts/migrate.mjs       applies the schema + seeds an admin (runs on deploy)
+lib/auth.ts           auth: scrypt hashing + session cookies
+lib/products.ts · lib/deals.ts · lib/deal.ts · lib/reference.ts   data access
+db/schema.sql         users, sessions, products, deals, reference_options, deal_terms
+scripts/migrate.mjs       applies schema + seeds + data migrations (runs on deploy)
 scripts/create-admin.mjs  manually create/promote an admin
 ```
+
+See [`docs/specs/`](./docs/specs/) for how each feature works.
 
 ## Run locally
 
 ```bash
 npm install
-cp .env.example .env      # optional: add DATABASE_URL to persist applications
+cp .env.example .env      # optional: add DATABASE_URL to persist data
 npm run dev               # http://localhost:3000
 ```
 
-Without `DATABASE_URL`, the form still works — applications are logged to the
-server console instead of saved. Add the connection string when you want them
-stored.
+Without `DATABASE_URL` the site still renders (with fallback content); the apply
+wizard and admin need a database.
 
 ## Database
 
 ```bash
 # with DATABASE_URL set (locally or pointed at Railway Postgres):
-npm run db:migrate        # applies the schema — idempotent, safe to re-run
+npm run db:migrate        # applies the schema + migrations — idempotent
 ```
 
 On Railway this runs **automatically on every deploy** (see below), so you don't
 normally call it by hand.
-
-View applications:
-
-```sql
-SELECT created_at, name, email, niche, revshare FROM applications ORDER BY created_at DESC;
-```
 
 ## Deploy to Railway
 
@@ -128,7 +126,7 @@ git push -u origin main
 ## Admin login & user management
 
 The site has an admin-only login (no public signup yet) gating a concierge
-dashboard at `/admin` — view applications and manage users. Auth is rolled in
+dashboard at `/admin` — triage deals and manage users. Auth is rolled in
 `lib/auth.ts`: scrypt password hashing (Node built-in, no native dependency) and
 random session tokens stored as SHA-256 in the `sessions` table.
 

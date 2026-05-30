@@ -149,6 +149,34 @@ try {
         AND NOT EXISTS (SELECT 1 FROM products WHERE featured = true)`
   );
 
+  // 1e. Users gain a nullable `name` and an optional password — marketer leads are
+  //     created passwordless by the express-interest wizard. Idempotent.
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT`);
+  await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL`);
+
+  // 1f. Retire the legacy applications table: fold each application into a
+  //     passwordless user + a product-less deal, then drop it. Guarded on the
+  //     table existing, so it's a no-op once done.
+  const { rows: hasApps } = await client.query(
+    `SELECT 1 FROM information_schema.tables WHERE table_name = 'applications'`
+  );
+  if (hasApps.length > 0) {
+    await client.query(
+      `INSERT INTO users (email, name)
+       SELECT DISTINCT ON (lower(email)) lower(email), NULLIF(name, '')
+         FROM applications WHERE COALESCE(email, '') <> ''
+       ON CONFLICT (email) DO NOTHING`
+    );
+    await client.query(
+      `INSERT INTO deals (user_id, product_id, link, proof, niche, revshare, status)
+       SELECT u.id, NULL, a.link, a.proof, a.niche, a.revshare, 'new'
+         FROM applications a JOIN users u ON u.email = lower(a.email)
+        WHERE COALESCE(a.email, '') <> ''`
+    );
+    await client.query(`DROP TABLE applications`);
+    console.log("[migrate] Migrated applications into deals and dropped the table.");
+  }
+
   // 2. First-admin seed from env (optional). Set ADMIN_EMAIL + ADMIN_PASSWORD in
   //    the Railway dashboard. Creates the admin only if it doesn't exist yet —
   //    never overwrites an existing account.

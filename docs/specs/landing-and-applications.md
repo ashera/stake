@@ -2,7 +2,11 @@
 
 - **Status:** Active
 - **Last updated:** 2026-05-31
-- **Code:** `app/page.tsx`, `app/how-it-works/page.tsx`, `app/SiteNav.tsx`, `app/SiteFooter.tsx`, `app/ProductCard.tsx`, `app/ApplyForm.tsx`, `app/api/apply/route.ts`, `app/globals.css`, `db/schema.sql`
+- **Code:** `app/page.tsx`, `app/how-it-works/page.tsx`, `app/SiteNav.tsx`, `app/SiteFooter.tsx`, `app/ProductCard.tsx`, `app/globals.css`
+
+> **Apply flow moved to the wizard.** The old generic form + `applications` table
+> are retired; applying now happens per-product via the express-interest wizard —
+> see [deals](./deals.md).
 
 ## Summary
 
@@ -26,9 +30,8 @@ Two pages, kept deliberately short:
 
 ## Data model
 
-`applications` — one row per submitted application:
-`id, name, email, link, proof, niche, revshare, opportunity (default 'frockd'),
-created_at`.
+None of its own. Applicant data now lives on `deals` (+ `users`) — see
+[deals](./deals.md).
 
 ## Behaviour
 
@@ -36,20 +39,13 @@ created_at`.
   `SiteFooter` are used by both pages. `ProductCard` renders an opportunity card on
   both. Nav brand links home; shows **Log in** when logged out, or the signed-in
   user's email (linked to `/admin` for admins) — resolved server-side, so no flash.
-- **Home** uses `getFeaturedProduct()` for the one featured card and links to
-  `/how-it-works` ("How it works" + "See how it works & every opening").
+- **Home** uses `getFeaturedProduct()` for the one featured card; its hero CTA and
+  the card's **Express interest** button both go to `/express-interest/[id]`.
 - **`/how-it-works`** uses `getDealTerms()` (see [deal-terms](./deal-terms.md)) and
-  `getPublishedProducts()` (see [products](./products.md)) for the full list.
-- `ApplyForm` (client) POSTs to `/api/apply`; shows an inline success state. It
-  appears on both pages (the conversion goal stays reachable from home).
+  `getPublishedProducts()` (see [products](./products.md)) for the full list, each
+  card carrying its own Express-interest button.
+- Applying is the wizard (see [deals](./deals.md)) — no inline form on these pages.
 - Both pages render dynamically (they read the session + DB).
-
-## API / Interfaces
-
-- `POST /api/apply` — body `{ name, email, link?, proof?, niche?, revshare? }`.
-  `name` + `email` required (422 otherwise). Inserts into `applications`.
-  **Degrades gracefully:** with no `DATABASE_URL` it logs the lead to the server
-  console and returns `{ ok: true, persisted: false }` instead of failing.
 
 ## Decisions & rationale
 
@@ -57,13 +53,13 @@ created_at`.
   (do marketers respond?), with a human matching behind the scenes.
 - **No public registration** — kept off until marketers bite (see
   [admin-auth-and-users](./admin-auth-and-users.md)).
-- **Degrade without a DB** so the form never loses a lead in local/preview.
 - **Short home, explanation one click away.** The home was too long; the
   for/not-for strip, the three steps, the deal box, and the full product list moved
-  to `/how-it-works`. Home keeps only hero + one featured product + apply, so
-  there's minimal below-the-fold.
-- **Apply form stays on home** (not just `/how-it-works`) — it's the conversion
-  goal; burying it a click away would hurt the demand test.
+  to `/how-it-works`. Home keeps only hero + one featured product, so there's
+  minimal below-the-fold.
+- **Per-product apply (the wizard) replaced the generic form.** Interest is now
+  tied to a specific product from the start (see [deals](./deals.md)); the CTA is
+  the product's Express-interest button.
 
 ## Open questions / risks
 

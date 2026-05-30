@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           Traxn <small>admin</small>
         </Link>
         <div className="admin-links">
-          <Link href="/admin">Applications</Link>
+          <Link href="/admin">Deals</Link>
           <Link href="/admin/products">Products</Link>
           <Link href="/admin/reference">Reference data</Link>
           <Link href="/admin/users">Users</Link>

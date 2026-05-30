@@ -4,7 +4,6 @@ import { getPublishedProducts } from "@/lib/products";
 import SiteNav from "../SiteNav";
 import SiteFooter from "../SiteFooter";
 import ProductCard from "../ProductCard";
-import ApplyForm from "../ApplyForm";
 
 export const metadata = {
   title: "Traxn — how it works",
@@ -132,12 +131,6 @@ export default async function HowItWorks() {
           </div>
         </section>
       )}
-
-      <section className="apply" id="apply">
-        <div className="form-card">
-          <ApplyForm />
-        </div>
-      </section>
 
       <SiteFooter />
     </div>

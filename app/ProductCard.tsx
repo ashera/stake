@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatBadge } from "@/lib/badge";
 import type { ProductDisplay } from "@/lib/products";
 
@@ -40,6 +41,13 @@ export default function ProductCard({ product: p }: { product: ProductDisplay })
             ))}
         </div>
       </div>
+      {p.id && (
+        <div className="opp-foot">
+          <Link className="btn btn-primary" href={`/express-interest/${p.id}`}>
+            Express interest →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
