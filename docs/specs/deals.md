@@ -52,8 +52,10 @@ on the deal. It replaces the old generic application form.
   prompt (`SetPasswordForm` → `POST /api/auth/set-password`).
 - **My deals** (`/deals`): a signed-in user's own deals, newest first
   (`getDealsForUser`). The nav links a marketer's email here (admins go to `/admin`).
-- **Admin** (`/admin`, the dashboard): `DealsManager` lists all deals, sets status
-  inline, links to each deal page, and can delete.
+- **Admin list** (`/admin`, the dashboard): `DealsTable` — a read-only table of all
+  deals (applicant, product, rev-share, status pill, date) with Edit and Delete.
+- **Admin edit** (`/admin/deals/[id]`): `DealWizard` — a 2-step wizard (Submission
+  review → Status) that PATCHes the status and returns to the list.
 
 ## API / Interfaces
 
@@ -61,7 +63,7 @@ on the deal. It replaces the old generic application form.
   revshare, note }`. 422 invalid, 409 `requiresLogin`, 503 no DB, else `{ dealId }`.
 - `POST /api/auth/set-password` — `{ password }` for the signed-in user.
 - `PATCH /api/admin/deals/[id]` — `{ status }`; `DELETE` removes. Admin only.
-- Pages: `/express-interest/[id]`, `/deal/[id]`, `/admin`.
+- Pages: `/express-interest/[id]`, `/deal/[id]`, `/admin`, `/admin/deals/[id]`.
 
 ## Decisions & rationale
 

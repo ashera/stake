@@ -4,45 +4,20 @@ import { useState } from "react";
 import Link from "next/link";
 import type { Deal } from "@/lib/deals";
 
-export default function DealsManager({
-  initialDeals,
-  statuses,
-}: {
-  initialDeals: Deal[];
-  statuses: string[];
-}) {
+export default function DealsTable({ initialDeals }: { initialDeals: Deal[] }) {
   const [deals, setDeals] = useState<Deal[]>(initialDeals);
-  const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
-  async function setStatus(deal: Deal, status: string) {
+  async function remove(d: Deal) {
+    if (!confirm(`Delete the deal from ${d.userName || d.userEmail}?`)) return;
     setError("");
-    setBusyId(deal.id);
+    setBusyId(d.id);
     try {
-      const res = await fetch(`/api/admin/deals/${deal.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't update.");
-      setDeals((ds) => ds.map((d) => (d.id === deal.id ? { ...d, status } : d)));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't update.");
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  async function remove(deal: Deal) {
-    if (!confirm(`Delete the deal from ${deal.userName || deal.userEmail}?`)) return;
-    setError("");
-    setBusyId(deal.id);
-    try {
-      const res = await fetch(`/api/admin/deals/${deal.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/deals/${d.id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't delete.");
-      setDeals((ds) => ds.filter((d) => d.id !== deal.id));
+      setDeals((ds) => ds.filter((x) => x.id !== d.id));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't delete.");
     } finally {
@@ -79,18 +54,7 @@ export default function DealsManager({
               <td>{d.productName ?? <span className="muted">General</span>}</td>
               <td className="muted">{d.revshare || "—"}</td>
               <td>
-                <select
-                  value={d.status}
-                  onChange={(e) => setStatus(d, e.target.value)}
-                  disabled={busyId === d.id}
-                >
-                  {statuses.includes(d.status) ? null : <option value={d.status}>{d.status}</option>}
-                  {statuses.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                <span className="pill pill-status">{d.status}</span>
               </td>
               <td className="muted">
                 {new Date(d.createdAt).toLocaleDateString("en-AU", {
@@ -100,14 +64,10 @@ export default function DealsManager({
                 })}
               </td>
               <td className="ta-right actions">
-                <Link className="btn-sm btn-ghost-sm" href={`/deal/${d.id}`}>
-                  View
+                <Link className="btn-sm btn-ghost-sm" href={`/admin/deals/${d.id}`}>
+                  Edit
                 </Link>
-                <button
-                  className="btn-sm btn-danger-sm"
-                  onClick={() => remove(d)}
-                  disabled={busyId === d.id}
-                >
+                <button className="btn-sm btn-danger-sm" onClick={() => remove(d)} disabled={busyId === d.id}>
                   Delete
                 </button>
               </td>
