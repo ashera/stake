@@ -136,3 +136,23 @@ CREATE TABLE IF NOT EXISTS events (
 );
 
 CREATE INDEX IF NOT EXISTS events_created_idx ON events (created_at DESC);
+
+-- Partnership tracker — outreach CRM for finding growth partners, plus checklist
+-- progress against the per-channel playbook (static content in lib/partnerships.ts).
+CREATE TABLE IF NOT EXISTS partnership_prospects (
+  id         BIGSERIAL   PRIMARY KEY,
+  name       TEXT        NOT NULL,
+  channel    TEXT,
+  link       TEXT,
+  status     TEXT        NOT NULL DEFAULT 'Identified',
+  next_step  TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- One row per completed checklist move; presence = done. `task` is the move's index.
+CREATE TABLE IF NOT EXISTS partnership_checks (
+  channel    TEXT        NOT NULL,
+  task       TEXT        NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (channel, task)
+);
