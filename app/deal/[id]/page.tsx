@@ -52,6 +52,14 @@ export default async function DealPage({ params }: { params: { id: string } }) {
           )}
         </p>
 
+        {deal.productId && deal.productHasScreenshot && (
+          <img
+            className="deal-shot"
+            src={`/api/products/${deal.productId}/screenshot`}
+            alt={`${deal.productName ?? "Product"} preview`}
+          />
+        )}
+
         <div className="deal-card">
           <dl className="review">
             {rows

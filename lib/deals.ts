@@ -7,6 +7,7 @@ export type Deal = {
   userEmail: string;
   productId: string | null;
   productName: string | null;
+  productHasScreenshot: boolean;
   link: string;
   proof: string;
   niche: string;
@@ -25,6 +26,7 @@ type DealRow = {
   user_email: string;
   product_id: number | string | null;
   product_name: string | null;
+  product_has_screenshot: boolean;
   link: string | null;
   proof: string | null;
   niche: string | null;
@@ -38,7 +40,7 @@ const SELECT = `
   SELECT d.id, d.user_id, d.product_id, d.link, d.proof, d.niche, d.revshare, d.note,
          d.status, d.created_at,
          u.name AS user_name, u.email AS user_email,
-         p.name AS product_name
+         p.name AS product_name, (p.screenshot IS NOT NULL) AS product_has_screenshot
     FROM deals d
     JOIN users u ON u.id = d.user_id
     LEFT JOIN products p ON p.id = d.product_id`;
@@ -51,6 +53,7 @@ function mapDeal(r: DealRow): Deal {
     userEmail: r.user_email,
     productId: r.product_id != null ? String(r.product_id) : null,
     productName: r.product_name ?? null,
+    productHasScreenshot: Boolean(r.product_has_screenshot),
     link: r.link ?? "",
     proof: r.proof ?? "",
     niche: r.niche ?? "",

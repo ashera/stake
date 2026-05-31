@@ -308,6 +308,7 @@ footer .version{margin-left:10px;font-size:12px;color:#7c7468;font-family:ui-mon
 .deal-title{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px}
 .deal-title h1{font-family:var(--serif);font-weight:400;font-size:clamp(28px,5vw,44px);letter-spacing:-1px}
 .deal-page .sub{color:var(--bone-dim);margin:10px 0 26px}
+.deal-shot{display:block;width:100%;max-height:300px;object-fit:cover;border:1px solid var(--rule);border-radius:14px;margin-bottom:20px}
 .deal-card{background:var(--ink-2);border:1px solid var(--rule);border-radius:18px;padding:26px 30px;margin-bottom:20px}
 .deal-card h3{font-size:18px;font-weight:600;margin-bottom:8px}
 .deal-card p{color:var(--bone-dim);font-size:15px;margin-bottom:16px}
