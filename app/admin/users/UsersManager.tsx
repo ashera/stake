@@ -7,6 +7,7 @@ export type ManagedUser = {
   id: string;
   email: string;
   isAdmin: boolean;
+  isBuilder: boolean;
   createdAt: string;
 };
 
@@ -18,7 +19,7 @@ export default function UsersManager({
   currentUserId: string;
 }) {
   const router = useRouter();
-  const [form, setForm] = useState({ email: "", password: "", isAdmin: true });
+  const [form, setForm] = useState({ email: "", password: "", isAdmin: true, isBuilder: false });
   const [status, setStatus] = useState<"idle" | "sending">("idle");
   const [error, setError] = useState("");
   // Per-row in-flight guard so a row's buttons disable while it mutates.
@@ -40,7 +41,7 @@ export default function UsersManager({
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't create the user.");
-      setForm({ email: "", password: "", isAdmin: true });
+      setForm({ email: "", password: "", isAdmin: true, isBuilder: false });
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't create the user.");
@@ -57,6 +58,25 @@ export default function UsersManager({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isAdmin }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't update the user.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't update the user.");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function setBuilder(user: ManagedUser, isBuilder: boolean) {
+    setError("");
+    setBusyId(user.id);
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isBuilder }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't update the user.");
@@ -120,6 +140,14 @@ export default function UsersManager({
           />
           Admin (can access this dashboard)
         </label>
+        <label className="check-line">
+          <input
+            type="checkbox"
+            checked={form.isBuilder}
+            onChange={(e) => setForm((f) => ({ ...f, isBuilder: e.target.checked }))}
+          />
+          Builder (can be assigned to products)
+        </label>
         <button className="btn-sm btn-primary-sm" type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Adding…" : "Add user"}
         </button>
@@ -145,12 +173,10 @@ export default function UsersManager({
                   {u.email}
                   {isMe && <span className="you">you</span>}
                 </td>
-                <td>
-                  {u.isAdmin ? (
-                    <span className="pill pill-admin">Admin</span>
-                  ) : (
-                    <span className="pill">User</span>
-                  )}
+                <td className="roles">
+                  {u.isAdmin && <span className="pill pill-admin">Admin</span>}
+                  {u.isBuilder && <span className="pill pill-admin">Builder</span>}
+                  {!u.isAdmin && !u.isBuilder && <span className="pill">User</span>}
                 </td>
                 <td className="muted">
                   {new Date(u.createdAt).toLocaleDateString("en-AU", {
@@ -176,6 +202,15 @@ export default function UsersManager({
                       disabled={busy}
                     >
                       Make admin
+                    </button>
+                  )}
+                  {u.isBuilder ? (
+                    <button className="btn-sm btn-ghost-sm" onClick={() => setBuilder(u, false)} disabled={busy}>
+                      Unset builder
+                    </button>
+                  ) : (
+                    <button className="btn-sm btn-ghost-sm" onClick={() => setBuilder(u, true)} disabled={busy}>
+                      Make builder
                     </button>
                   )}
                   <button

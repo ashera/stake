@@ -4,7 +4,7 @@ import { getAdmin, hashPassword } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-type CreateBody = { email?: string; password?: string; isAdmin?: boolean };
+type CreateBody = { email?: string; password?: string; isAdmin?: boolean; isBuilder?: boolean };
 
 export async function POST(req: Request) {
   if (!(await getAdmin())) {
@@ -21,6 +21,7 @@ export async function POST(req: Request) {
   const email = (body.email || "").trim().toLowerCase();
   const password = body.password || "";
   const isAdmin = Boolean(body.isAdmin);
+  const isBuilder = Boolean(body.isBuilder);
 
   if (!email || !password) {
     return NextResponse.json(
@@ -45,10 +46,10 @@ export async function POST(req: Request) {
 
   try {
     const { rows } = await pool.query(
-      `INSERT INTO users (email, password_hash, is_admin)
-       VALUES ($1, $2, $3)
-       RETURNING id, email, is_admin, created_at`,
-      [email, hashPassword(password), isAdmin]
+      `INSERT INTO users (email, password_hash, is_admin, is_builder)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, email, is_admin, is_builder, created_at`,
+      [email, hashPassword(password), isAdmin, isBuilder]
     );
     return NextResponse.json({ ok: true, user: rows[0] });
   } catch (err: unknown) {

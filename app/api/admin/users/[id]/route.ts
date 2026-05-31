@@ -19,35 +19,53 @@ export async function PATCH(req: Request, { params }: Params) {
   const me = await getAdmin();
   if (!me) return NextResponse.json({ ok: false, error: "Not authorised." }, { status: 403 });
 
-  let body: { isAdmin?: boolean };
+  let body: { isAdmin?: boolean; isBuilder?: boolean };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ ok: false, error: "Invalid JSON." }, { status: 400 });
   }
-  if (typeof body.isAdmin !== "boolean") {
-    return NextResponse.json({ ok: false, error: "isAdmin must be a boolean." }, { status: 422 });
+  const hasAdmin = typeof body.isAdmin === "boolean";
+  const hasBuilder = typeof body.isBuilder === "boolean";
+  if (!hasAdmin && !hasBuilder) {
+    return NextResponse.json({ ok: false, error: "Nothing to update." }, { status: 422 });
   }
 
   const pool = getPool();
   if (!pool) return NextResponse.json({ ok: false, error: "Database isn't configured." }, { status: 503 });
 
-  if (params.id === me.id && body.isAdmin === false) {
-    return NextResponse.json(
-      { ok: false, error: "You can't remove your own admin access." },
-      { status: 422 }
-    );
-  }
-  if (body.isAdmin === false && (await lastAdminGuard(pool, params.id))) {
-    return NextResponse.json(
-      { ok: false, error: "That's the last admin — promote someone else first." },
-      { status: 422 }
-    );
+  // Admin changes carry lock-out guards; the builder flag has none.
+  if (hasAdmin && body.isAdmin === false) {
+    if (params.id === me.id) {
+      return NextResponse.json(
+        { ok: false, error: "You can't remove your own admin access." },
+        { status: 422 }
+      );
+    }
+    if (await lastAdminGuard(pool, params.id)) {
+      return NextResponse.json(
+        { ok: false, error: "That's the last admin — promote someone else first." },
+        { status: 422 }
+      );
+    }
   }
 
+  const sets: string[] = [];
+  const vals: unknown[] = [];
+  if (hasAdmin) {
+    vals.push(body.isAdmin);
+    sets.push(`is_admin = $${vals.length}`);
+  }
+  if (hasBuilder) {
+    vals.push(body.isBuilder);
+    sets.push(`is_builder = $${vals.length}`);
+  }
+  vals.push(params.id);
+
   const { rows } = await pool.query(
-    `UPDATE users SET is_admin = $1 WHERE id = $2 RETURNING id, email, is_admin`,
-    [body.isAdmin, params.id]
+    `UPDATE users SET ${sets.join(", ")} WHERE id = $${vals.length}
+     RETURNING id, email, is_admin, is_builder`,
+    vals
   );
   if (rows.length === 0) {
     return NextResponse.json({ ok: false, error: "User not found." }, { status: 404 });

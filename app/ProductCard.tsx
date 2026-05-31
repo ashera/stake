@@ -38,10 +38,21 @@ export default function ProductCard({ product: p }: { product: ProductDisplay })
             )}
             <div className="opp-headtext">
               <h3>{p.name}</h3>
-              {(p.builder || offered) && (
+              {(p.builderName || offered) && (
                 <p className="opp-byline">
-                  {p.builder && <>Built by {p.builder}</>}
-                  {p.builder && offered && " · "}
+                  {p.builderName && (
+                    <>
+                      Built by{" "}
+                      {p.builderId ? (
+                        <Link className="byline-link" href={`/builder/${p.builderId}`}>
+                          {p.builderName}
+                        </Link>
+                      ) : (
+                        p.builderName
+                      )}
+                    </>
+                  )}
+                  {p.builderName && offered && " · "}
                   {offered && <>Offered {offered}</>}
                 </p>
               )}

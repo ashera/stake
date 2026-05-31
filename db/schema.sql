@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
   family_name       TEXT,
   password_hash     TEXT,                   -- scrypt; nullable (passwordless leads)
   is_admin          BOOLEAN     NOT NULL DEFAULT false,
+  is_builder        BOOLEAN     NOT NULL DEFAULT false,
   email_verified_at TIMESTAMPTZ,            -- null until the email is confirmed
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -88,7 +89,7 @@ CREATE TABLE IF NOT EXISTS products (
   mandate_id   BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
   lever_id     BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
   deal_id      BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
-  builder      TEXT,                  -- builder's nickname
+  builder_id   BIGINT      REFERENCES users (id) ON DELETE SET NULL,  -- the builder (a user)
   offered_on   DATE,                  -- when the opportunity was offered
   live_url     TEXT,                  -- the product's live URL (optional)
   screenshot      BYTEA,              -- a screenshot of a product page

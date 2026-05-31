@@ -21,7 +21,7 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 ## Data model
 
 - `users` — `id, email (unique), name (nickname), first_name, family_name,
-  password_hash (nullable), is_admin, email_verified_at (nullable), created_at`.
+  password_hash (nullable), is_admin, is_builder, email_verified_at (nullable), created_at`.
   `password_hash` format `scrypt$<saltHex>$<hashHex>`; **null** for passwordless
   leads. The name fields are all optional.
 - `sessions` — `id (= sha256 of the cookie token), user_id, expires_at, created_at`.
@@ -43,8 +43,11 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 - **Protection:** `app/admin/layout.tsx` calls `getCurrentUser()` and redirects
   non-admins to `/login`. Every admin API re-checks `getAdmin()` (defence in depth).
 - **User management** (`/admin/users`): list, add user (email + password +
-  admin flag), promote/demote, delete. Guardrails: can't demote or delete
-  yourself, and can't remove the last admin.
+  admin/builder flags), promote/demote, flag/unflag **builder**, delete.
+  Guardrails: can't demote or delete yourself, and can't remove the last admin.
+- **Builders:** a user with `is_builder` can be assigned to a product (the product
+  wizard's builder dropdown) and gets a public profile at `/builder/[id]` listing
+  the opportunities they've built. See [products](./products.md).
 - **Profile** (`/profile`): any signed-in user manages their own account — edit
   nickname + first/family name (all optional, `PATCH /api/profile`), set/change
   password (`SetPasswordForm`), see verification status (with resend), and sign out.

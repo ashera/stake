@@ -48,9 +48,11 @@ function AttrSelect({
 export default function ProductWizard({
   product,
   options,
+  builders,
 }: {
   product: Product & { id: string };
   options: ProductOptions;
+  builders: { id: string; label: string }[];
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -61,7 +63,7 @@ export default function ProductWizard({
     spots: product.spots,
     liveUrl: product.liveUrl,
     description: product.description,
-    builder: product.builder,
+    builderId: product.builderId,
     offeredOn: product.offeredOn,
     stageId: product.stageId,
     mandateId: product.mandateId,
@@ -249,14 +251,22 @@ export default function ProductWizard({
             <div className="row2">
               <div className="field">
                 <label>
-                  Builder <span>(nickname)</span>
+                  Builder <span>(flag users as builders in Users)</span>
                 </label>
-                <input
-                  type="text"
-                  value={form.builder}
-                  onChange={(e) => set("builder", e.target.value)}
-                  placeholder="e.g. Adam"
-                />
+                <select
+                  value={form.builderId ?? ""}
+                  onChange={(e) => set("builderId", e.target.value || null)}
+                >
+                  <option value="">— none —</option>
+                  {builders.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.label}
+                    </option>
+                  ))}
+                  {form.builderId && !builders.some((b) => b.id === form.builderId) && (
+                    <option value={form.builderId}>(current builder)</option>
+                  )}
+                </select>
               </div>
               <div className="field">
                 <label>Date offered</label>

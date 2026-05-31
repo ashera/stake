@@ -8,7 +8,7 @@ export type Product = {
   status: string;
   spots: number;
   description: string;
-  builder: string;
+  builderId: string | null;
   offeredOn: string | null; // YYYY-MM-DD
   liveUrl: string;
   hasScreenshot: boolean;
@@ -27,7 +27,8 @@ type ProductRow = {
   status: string | null;
   spots: number | null;
   description: string | null;
-  builder: string | null;
+  builder_id: number | string | null;
+  builder_name: string | null;
   offered_on: string | null;
   live_url: string | null;
   has_screenshot: boolean;
@@ -43,7 +44,7 @@ type ProductRow = {
 // `offered_on` is returned as a YYYY-MM-DD string; screenshot bytes are never
 // selected here (served separately) — we only expose whether one exists.
 export const PRODUCT_COLUMNS =
-  "id, name, category, status, spots, description, builder, live_url, " +
+  "id, name, category, status, spots, description, builder_id, live_url, " +
   "to_char(offered_on, 'YYYY-MM-DD') AS offered_on, (screenshot IS NOT NULL) AS has_screenshot, " +
   "stage_id, mandate_id, lever_id, deal_id, published, featured";
 
@@ -57,7 +58,7 @@ export function mapProductRow(r: ProductRow): Product {
     status: r.status ?? "Open",
     spots: r.spots ?? 0,
     description: r.description ?? "",
-    builder: r.builder ?? "",
+    builderId: refId(r.builder_id),
     offeredOn: r.offered_on ?? null,
     liveUrl: r.live_url ?? "",
     hasScreenshot: Boolean(r.has_screenshot),
@@ -80,7 +81,8 @@ export type ProductDisplay = {
   status: string;
   spots: number;
   description: string;
-  builder: string;
+  builderId: string | null;
+  builderName: string;
   offeredOn: string | null;
   liveUrl: string;
   hasScreenshot: boolean;
@@ -102,7 +104,8 @@ export const DEFAULT_PRODUCTS: ProductDisplay[] = [
     spots: 1,
     description:
       "A working marketplace where people list their formal dresses. The product is built and live — listings convert when buyers show up. Right now it has almost no audience.\n\nThe interesting part: revenue is listing fees, but the real lever is buyer demand. Crack the buyer side and the rest follows. It's a clean, winnable puzzle for someone who knows how to manufacture demand in a niche.",
-    builder: "",
+    builderId: null,
+    builderName: "",
     offeredOn: null,
     liveUrl: "https://frockd.com.au",
     hasScreenshot: false,
@@ -130,7 +133,9 @@ export const DEFAULT_PRODUCTS: ProductDisplay[] = [
 
 // Shared SELECT that resolves each attribute FK to its label + description.
 const DISPLAY_SELECT = `
-  SELECT p.id, p.name, p.category, p.status, p.spots, p.description, p.builder, p.live_url,
+  SELECT p.id, p.name, p.category, p.status, p.spots, p.description, p.builder_id,
+         COALESCE(NULLIF(b.name, ''), NULLIF(TRIM(CONCAT_WS(' ', b.first_name, b.family_name)), '')) AS builder_name,
+         p.live_url,
          to_char(p.offered_on, 'YYYY-MM-DD') AS offered_on,
          (p.screenshot IS NOT NULL) AS has_screenshot, p.published, p.featured,
          st.label AS stage_label,   st.description AS stage_desc,
@@ -138,6 +143,7 @@ const DISPLAY_SELECT = `
          le.label AS lever_label,   le.description AS lever_desc,
          de.label AS deal_label,    de.description AS deal_desc
     FROM products p
+    LEFT JOIN users b ON b.id = p.builder_id
     LEFT JOIN reference_options st ON st.id = p.stage_id
     LEFT JOIN reference_options ma ON ma.id = p.mandate_id
     LEFT JOIN reference_options le ON le.id = p.lever_id
@@ -152,7 +158,8 @@ function mapDisplayRow(r: Record<string, unknown>): ProductDisplay {
     status: s(r.status) || "Open",
     spots: typeof r.spots === "number" ? r.spots : 0,
     description: s(r.description),
-    builder: s(r.builder),
+    builderId: r.builder_id != null ? String(r.builder_id) : null,
+    builderName: s(r.builder_name),
     offeredOn: r.offered_on != null ? String(r.offered_on) : null,
     liveUrl: s(r.live_url),
     hasScreenshot: Boolean(r.has_screenshot),

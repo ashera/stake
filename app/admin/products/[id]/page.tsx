@@ -1,14 +1,16 @@
 import { notFound } from "next/navigation";
 import { getProductByIdAdmin } from "@/lib/products";
 import { getReferenceOptions } from "@/lib/reference";
+import { getBuilders } from "@/lib/users";
 import ProductWizard, { type ProductOptions } from "./ProductWizard";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditProduct({ params }: { params: { id: string } }) {
-  const [product, refOptions] = await Promise.all([
+  const [product, refOptions, builders] = await Promise.all([
     getProductByIdAdmin(params.id),
     getReferenceOptions(),
+    getBuilders(),
   ]);
   if (!product || !product.id) notFound();
 
@@ -21,7 +23,7 @@ export default async function EditProduct({ params }: { params: { id: string } }
 
   return (
     <section>
-      <ProductWizard product={{ ...product, id: product.id }} options={options} />
+      <ProductWizard product={{ ...product, id: product.id }} options={options} builders={builders} />
     </section>
   );
 }

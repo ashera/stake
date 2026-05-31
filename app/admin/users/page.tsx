@@ -8,12 +8,13 @@ async function getUsers(): Promise<ManagedUser[]> {
   const pool = getPool();
   if (!pool) return [];
   const { rows } = await pool.query(
-    `SELECT id, email, is_admin, created_at FROM users ORDER BY created_at ASC`
+    `SELECT id, email, is_admin, is_builder, created_at FROM users ORDER BY created_at ASC`
   );
   return rows.map((r) => ({
     id: String(r.id),
     email: r.email,
     isAdmin: r.is_admin,
+    isBuilder: r.is_builder,
     createdAt: r.created_at,
   }));
 }

@@ -164,6 +164,27 @@ try {
   await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS builder TEXT`);
   await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS offered_on DATE`);
   await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS live_url TEXT`);
+
+  // 1h. Convert products.builder (free text) into builder_id (FK to a user).
+  //     Best-effort match by nickname, then drop the text column. Guarded.
+  await client.query(
+    `ALTER TABLE products ADD COLUMN IF NOT EXISTS builder_id BIGINT REFERENCES users (id) ON DELETE SET NULL`
+  );
+  const { rows: hasBuilderText } = await client.query(
+    `SELECT 1 FROM information_schema.columns
+      WHERE table_name = 'products' AND column_name = 'builder'`
+  );
+  if (hasBuilderText.length > 0) {
+    await client.query(
+      `UPDATE products p SET builder_id = u.id
+         FROM users u
+        WHERE p.builder_id IS NULL
+          AND COALESCE(p.builder, '') <> ''
+          AND lower(u.name) = lower(p.builder)`
+    );
+    await client.query(`ALTER TABLE products DROP COLUMN builder`);
+    await note("migrate.products", "Converted products.builder text to builder_id (user FK).");
+  }
   await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS screenshot BYTEA`);
   await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS screenshot_type TEXT`);
 
@@ -174,6 +195,7 @@ try {
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMPTZ`);
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT`);
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS family_name TEXT`);
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_builder BOOLEAN NOT NULL DEFAULT false`);
 
   // 1f. Retire the legacy applications table: fold each application into a
   //     passwordless user + a product-less deal, then drop it. Guarded on the

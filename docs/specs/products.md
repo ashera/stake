@@ -25,8 +25,10 @@ published, featured, position, created_at`.
 
 - `status` (text, e.g. "Open") + `spots` (int) combine into the card pill.
 - `description` may hold multiple paragraphs separated by a blank line.
-- `builder` (nickname) and `offered_on` (date) show as a byline on the card;
-  `live_url` (optional) renders as a "Visit the live site" link.
+- `builder_id` (FK → a user flagged `is_builder`) and `offered_on` (date) show as a
+  byline on the card; the builder name links to `/builder/[id]`. `live_url`
+  (optional) renders as a "Visit the live site" link. The wizard picks the builder
+  from a dropdown of flagged builders (`getBuilders` in `lib/users.ts`).
 - `screenshot` holds an uploaded image of a product page (≤2 MB) served by the
   app; admin reads never select the bytes — only `(screenshot IS NOT NULL)`.
 - `stage_id` / `mandate_id` / `lever_id` / `deal_id` are FKs into
