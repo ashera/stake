@@ -49,8 +49,8 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
   nickname + first/family name (all optional, `PATCH /api/profile`), set/change
   password (`SetPasswordForm`), see verification status (with resend), and sign out.
   `getCurrentUser` exposes a computed `displayName` (nickname → "First Family" →
-  email) that the nav shows in place of the email. The nav links a marketer here
-  (admins to `/admin`, with a Profile link in the admin nav).
+  email). The nav shows it as a dropdown (`AccountMenu`) with **My deals**,
+  **My profile**, **Logout** (and **Admin dashboard** for admins).
 - **Bootstrapping:** `npm run create-admin -- <email> <password>` (manual), or the
   `ADMIN_EMAIL`/`ADMIN_PASSWORD` env seed on deploy (see
   [deploy-and-migrations](./deploy-and-migrations.md)).

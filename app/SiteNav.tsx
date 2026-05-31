@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
+import AccountMenu from "./AccountMenu";
 
 // Shared public-site nav. Server component — resolves login state itself so pages
 // don't have to thread it through.
@@ -17,9 +18,7 @@ export default async function SiteNav() {
           How it works
         </Link>
         {user ? (
-          <Link className="nav-account" href={user.isAdmin ? "/admin" : "/profile"}>
-            {user.displayName}
-          </Link>
+          <AccountMenu label={user.displayName} isAdmin={user.isAdmin} />
         ) : (
           <Link className="nav-login" href="/login">
             Log in

@@ -40,6 +40,14 @@ nav a.nav-account:hover{text-decoration:underline}
 nav a.nav-link{font-weight:600;font-size:15px;color:var(--bone-dim);text-decoration:none}
 nav a.nav-link:hover{color:var(--bone)}
 
+/* account dropdown */
+.account-menu{position:relative}
+.account-trigger{font:inherit;font-weight:600;font-size:15px;color:var(--acid);background:none;border:none;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:5px}
+.account-trigger .caret{font-size:10px;color:var(--bone-dim)}
+.account-dropdown{position:absolute;right:0;top:calc(100% + 12px);min-width:180px;background:var(--ink-2);border:1px solid var(--rule);border-radius:12px;padding:6px;display:flex;flex-direction:column;box-shadow:0 16px 40px rgba(0,0,0,.4);z-index:30}
+.account-dropdown a,.account-dropdown button{display:block;width:100%;text-align:left;font:inherit;font-size:14px;color:var(--bone);background:none;border:none;cursor:pointer;text-decoration:none;padding:9px 13px;border-radius:8px}
+.account-dropdown a:hover,.account-dropdown button:hover{background:rgba(244,239,230,.06)}
+
 header{padding:90px 0 70px}
 .eyebrow{font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acid-deep);font-weight:600;margin-bottom:26px;opacity:0;animation:rise .7s .05s forwards}
 h1{font-family:var(--serif);font-weight:400;font-size:clamp(42px,7vw,82px);line-height:1.02;letter-spacing:-1.5px;max-width:14ch;opacity:0;animation:rise .8s .12s forwards}
