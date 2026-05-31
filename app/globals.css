@@ -283,6 +283,7 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
 
 /* deal page */
 .deal-page{padding:48px 0 90px;max-width:760px}
+.profile-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .deal-title{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:8px}
 .deal-title h1{font-family:var(--serif);font-weight:400;font-size:clamp(28px,5vw,44px);letter-spacing:-1px}
 .deal-page .sub{color:var(--bone-dim);margin:10px 0 26px}

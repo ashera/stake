@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import LogoutButton from "./LogoutButton";
+import LogoutButton from "../LogoutButton";
 
 export const metadata = { title: "Traxn — Admin" };
 

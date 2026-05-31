@@ -6,6 +6,7 @@ import SiteNav from "../SiteNav";
 import SiteFooter from "../SiteFooter";
 import VerifyBanner from "../VerifyBanner";
 import SetPasswordForm from "../SetPasswordForm";
+import LogoutButton from "../LogoutButton";
 import ProfileForm from "./ProfileForm";
 
 export const dynamic = "force-dynamic";
@@ -28,8 +29,13 @@ export default async function ProfilePage() {
       <SiteNav />
 
       <section className="deal-page">
-        <div className="eyebrow">Account</div>
-        <h1>Your profile</h1>
+        <div className="profile-top">
+          <div>
+            <div className="eyebrow">Account</div>
+            <h1>Your profile</h1>
+          </div>
+          <LogoutButton />
+        </div>
 
         {!user.emailVerified && <VerifyBanner email={user.email} />}
 
