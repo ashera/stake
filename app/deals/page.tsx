@@ -37,7 +37,7 @@ export default async function MyDeals({
         {deals.length === 0 ? (
           <div className="empty">
             No deals yet.{" "}
-            <Link href="/how-it-works#opportunities" className="muted-link">
+            <Link href="/opportunities" className="muted-link">
               Browse opportunities →
             </Link>
           </div>

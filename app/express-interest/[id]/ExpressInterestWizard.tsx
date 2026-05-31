@@ -90,7 +90,7 @@ export default function ExpressInterestWizard({
   return (
     <section className="wizard">
       <div className="wizard-head">
-        <Link href="/how-it-works#opportunities" className="muted-link">
+        <Link href="/opportunities" className="muted-link">
           ← All opportunities
         </Link>
         <div className="eyebrow">Express interest</div>

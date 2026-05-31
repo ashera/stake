@@ -93,7 +93,7 @@ export default async function DealPage({ params }: { params: { id: string } }) {
               {" · "}
             </>
           )}
-          <Link href="/how-it-works#opportunities" className="muted-link">
+          <Link href="/opportunities" className="muted-link">
             Browse other opportunities →
           </Link>
         </p>
