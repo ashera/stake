@@ -281,6 +281,9 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
 .wizard-steps li.is-done .n{background:var(--acid-deep);color:var(--ink)}
 .wizard .form-card h2{font-family:var(--serif);font-weight:400;font-size:26px;margin-bottom:8px}
 .wizard-nav{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:28px}
+.wizard-nav-right{display:flex;align-items:center;gap:10px}
+.data-table td.reorder{white-space:nowrap}
+.data-table td.reorder .btn-sm{padding:6px 10px}
 
 /* review list (wizard review step + deal page) */
 .review{display:flex;flex-direction:column}

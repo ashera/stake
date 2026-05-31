@@ -50,10 +50,14 @@ published, featured, position, created_at`.
 - **Pill:** `formatBadge(status, spots)` → e.g. "Open · 2 spots" (auto-pluralised;
   0 spots shows just the status). Lives in `lib/badge.ts` (client-safe, **no DB
   import**) so the admin form can preview it without pulling `pg` into the client.
-- **Admin (`/admin/products`):** local-state manager — add (creates an unpublished
-  draft), edit fields, status dropdown, spots, attribute dropdowns (sourced from
-  reference options, previewing the selected option's description), publish toggle,
-  **featured toggle**, reorder, delete.
+- **Admin list (`/admin/products`):** a **table** of products (name, status, spots,
+  published/featured) with reorder (↑/↓), delete, and **New product** (creates an
+  unpublished draft and opens it). Each row links to the edit wizard.
+- **Admin edit (`/admin/products/[id]`):** a **wizard** — *Basics* (name, category,
+  status, spots, live URL) → *Pitch* (description, builder, offered date) →
+  *Attributes* (reference dropdowns with description previews) → *Media & visibility*
+  (screenshot upload, published, featured). Save persists the whole record via
+  `PATCH` and returns to the list; the screenshot uploads immediately on its step.
 - **Featured is exclusive:** the `PATCH` runs in a transaction that clears
   `featured` on all other products when one is set, so there's always at most one.
 - **Screenshot upload:** the admin form uploads via `POST

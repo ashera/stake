@@ -180,6 +180,18 @@ export async function getPublishedProducts(): Promise<ProductDisplay[]> {
   }
 }
 
+// A single product by id in admin (edit) shape — any status, all fields.
+export async function getProductByIdAdmin(id: string): Promise<Product | null> {
+  const pool = getPool();
+  if (!pool) return null;
+  try {
+    const { rows } = await pool.query(`SELECT ${PRODUCT_COLUMNS} FROM products WHERE id = $1`, [id]);
+    return rows[0] ? mapProductRow(rows[0]) : null;
+  } catch {
+    return null;
+  }
+}
+
 // A single published product by id, for the express-interest wizard's context.
 // Returns null if not found, not published, or the id is invalid.
 export async function getPublishedProductById(id: string): Promise<ProductDisplay | null> {
