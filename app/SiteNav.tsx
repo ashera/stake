@@ -13,13 +13,15 @@ export default async function SiteNav() {
         <span className="dot" />
         Traxn
       </Link>
-      <div className="nav-right">
+      <div className="nav-center">
         <Link className="nav-link" href="/opportunities">
-          Opportunities
+          All Opportunities
         </Link>
         <Link className="nav-link" href="/how-it-works">
           How it works
         </Link>
+      </div>
+      <div className="nav-right">
         {user ? (
           <AccountMenu label={user.displayName} isAdmin={user.isAdmin} />
         ) : (

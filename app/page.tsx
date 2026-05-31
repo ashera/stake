@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import { getFeaturedProduct } from "@/lib/products";
 import SiteNav from "./SiteNav";
@@ -35,7 +36,12 @@ export default async function Home() {
 
       {featured && (
         <section className="featured">
-          <div className="section-label">Featured opportunity</div>
+          <div className="featured-head">
+            <div className="section-label">Featured opportunity</div>
+            <Link className="see-all" href="/opportunities">
+              See all opportunities →
+            </Link>
+          </div>
           <ProductCard product={featured} />
         </section>
       )}
