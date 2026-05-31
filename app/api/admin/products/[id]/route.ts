@@ -15,6 +15,7 @@ type UpdateBody = {
   description?: string;
   builder?: string;
   offeredOn?: string | null;
+  liveUrl?: string;
   stageId?: string | null;
   mandateId?: string | null;
   leverId?: string | null;
@@ -65,10 +66,10 @@ export async function PATCH(req: Request, { params }: Params) {
     const { rows } = await client.query(
       `UPDATE products
           SET name = $1, category = $2, status = $3, spots = $4, description = $5,
-              builder = $6, offered_on = $7,
-              stage_id = $8, mandate_id = $9, lever_id = $10, deal_id = $11,
-              published = $12, featured = $13
-        WHERE id = $14
+              builder = $6, offered_on = $7, live_url = $8,
+              stage_id = $9, mandate_id = $10, lever_id = $11, deal_id = $12,
+              published = $13, featured = $14
+        WHERE id = $15
         RETURNING ${PRODUCT_COLUMNS}`,
       [
         name,
@@ -78,6 +79,7 @@ export async function PATCH(req: Request, { params }: Params) {
         trim(body.description),
         trim(body.builder),
         trim(body.offeredOn), // 'YYYY-MM-DD' or null; cast by the date column
+        trim(body.liveUrl),
         refId(body.stageId),
         refId(body.mandateId),
         refId(body.leverId),

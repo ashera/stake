@@ -7,7 +7,9 @@
 CREATE TABLE IF NOT EXISTS users (
   id                BIGSERIAL PRIMARY KEY,
   email             TEXT        NOT NULL UNIQUE,
-  name              TEXT,
+  name              TEXT,                   -- nickname / what they go by
+  first_name        TEXT,
+  family_name       TEXT,
   password_hash     TEXT,                   -- scrypt; nullable (passwordless leads)
   is_admin          BOOLEAN     NOT NULL DEFAULT false,
   email_verified_at TIMESTAMPTZ,            -- null until the email is confirmed
@@ -88,6 +90,7 @@ CREATE TABLE IF NOT EXISTS products (
   deal_id      BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
   builder      TEXT,                  -- builder's nickname
   offered_on   DATE,                  -- when the opportunity was offered
+  live_url     TEXT,                  -- the product's live URL (optional)
   screenshot      BYTEA,              -- a screenshot of a product page
   screenshot_type TEXT,               -- its mime type, e.g. image/png
   published    BOOLEAN     NOT NULL DEFAULT false,

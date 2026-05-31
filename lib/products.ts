@@ -10,6 +10,7 @@ export type Product = {
   description: string;
   builder: string;
   offeredOn: string | null; // YYYY-MM-DD
+  liveUrl: string;
   hasScreenshot: boolean;
   stageId: string | null;
   mandateId: string | null;
@@ -28,6 +29,7 @@ type ProductRow = {
   description: string | null;
   builder: string | null;
   offered_on: string | null;
+  live_url: string | null;
   has_screenshot: boolean;
   stage_id: number | string | null;
   mandate_id: number | string | null;
@@ -41,7 +43,7 @@ type ProductRow = {
 // `offered_on` is returned as a YYYY-MM-DD string; screenshot bytes are never
 // selected here (served separately) — we only expose whether one exists.
 export const PRODUCT_COLUMNS =
-  "id, name, category, status, spots, description, builder, " +
+  "id, name, category, status, spots, description, builder, live_url, " +
   "to_char(offered_on, 'YYYY-MM-DD') AS offered_on, (screenshot IS NOT NULL) AS has_screenshot, " +
   "stage_id, mandate_id, lever_id, deal_id, published, featured";
 
@@ -57,6 +59,7 @@ export function mapProductRow(r: ProductRow): Product {
     description: r.description ?? "",
     builder: r.builder ?? "",
     offeredOn: r.offered_on ?? null,
+    liveUrl: r.live_url ?? "",
     hasScreenshot: Boolean(r.has_screenshot),
     stageId: refId(r.stage_id),
     mandateId: refId(r.mandate_id),
@@ -79,6 +82,7 @@ export type ProductDisplay = {
   description: string;
   builder: string;
   offeredOn: string | null;
+  liveUrl: string;
   hasScreenshot: boolean;
   published: boolean;
   featured: boolean;
@@ -100,6 +104,7 @@ export const DEFAULT_PRODUCTS: ProductDisplay[] = [
       "A working marketplace where people list their formal dresses. The product is built and live — listings convert when buyers show up. Right now it has almost no audience.\n\nThe interesting part: revenue is listing fees, but the real lever is buyer demand. Crack the buyer side and the rest follows. It's a clean, winnable puzzle for someone who knows how to manufacture demand in a niche.",
     builder: "",
     offeredOn: null,
+    liveUrl: "https://frockd.com.au",
     hasScreenshot: false,
     published: true,
     featured: true,
@@ -125,7 +130,7 @@ export const DEFAULT_PRODUCTS: ProductDisplay[] = [
 
 // Shared SELECT that resolves each attribute FK to its label + description.
 const DISPLAY_SELECT = `
-  SELECT p.id, p.name, p.category, p.status, p.spots, p.description, p.builder,
+  SELECT p.id, p.name, p.category, p.status, p.spots, p.description, p.builder, p.live_url,
          to_char(p.offered_on, 'YYYY-MM-DD') AS offered_on,
          (p.screenshot IS NOT NULL) AS has_screenshot, p.published, p.featured,
          st.label AS stage_label,   st.description AS stage_desc,
@@ -149,6 +154,7 @@ function mapDisplayRow(r: Record<string, unknown>): ProductDisplay {
     description: s(r.description),
     builder: s(r.builder),
     offeredOn: r.offered_on != null ? String(r.offered_on) : null,
+    liveUrl: s(r.live_url),
     hasScreenshot: Boolean(r.has_screenshot),
     published: Boolean(r.published),
     featured: Boolean(r.featured),

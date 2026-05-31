@@ -163,6 +163,7 @@ try {
   // 1g. Extra product fields: builder nickname, offered date, screenshot. Idempotent.
   await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS builder TEXT`);
   await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS offered_on DATE`);
+  await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS live_url TEXT`);
   await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS screenshot BYTEA`);
   await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS screenshot_type TEXT`);
 
@@ -171,6 +172,8 @@ try {
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT`);
   await client.query(`ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL`);
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMPTZ`);
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT`);
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS family_name TEXT`);
 
   // 1f. Retire the legacy applications table: fold each application into a
   //     passwordless user + a product-less deal, then drop it. Guarded on the

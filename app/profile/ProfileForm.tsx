@@ -4,16 +4,29 @@ import { useState } from "react";
 
 export default function ProfileForm({
   initialName,
+  initialFirstName,
+  initialFamilyName,
   email,
   verified,
 }: {
   initialName: string;
+  initialFirstName: string;
+  initialFamilyName: string;
   email: string;
   verified: boolean;
 }) {
-  const [name, setName] = useState(initialName);
+  const [form, setForm] = useState({
+    name: initialName,
+    firstName: initialFirstName,
+    familyName: initialFamilyName,
+  });
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [error, setError] = useState("");
+
+  function update(key: keyof typeof form) {
+    return (e: React.ChangeEvent<HTMLInputElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }));
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,7 +36,7 @@ export default function ProfileForm({
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify(form),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't save.");
@@ -44,9 +57,23 @@ export default function ProfileForm({
       </div>
       <div className="field">
         <label>
-          Name <span>(or what you go by)</span>
+          Nickname <span>(what you go by · optional)</span>
         </label>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Alex Rivera" />
+        <input type="text" value={form.name} onChange={update("name")} placeholder="Alex" />
+      </div>
+      <div className="row2">
+        <div className="field">
+          <label>
+            First name <span>(optional)</span>
+          </label>
+          <input type="text" value={form.firstName} onChange={update("firstName")} placeholder="Alex" />
+        </div>
+        <div className="field">
+          <label>
+            Family name <span>(optional)</span>
+          </label>
+          <input type="text" value={form.familyName} onChange={update("familyName")} placeholder="Rivera" />
+        </div>
       </div>
       <button className="btn-sm btn-primary-sm" type="submit" disabled={status === "saving"}>
         {status === "saving" ? "Saving…" : status === "saved" ? "Saved ✓" : "Save"}

@@ -19,6 +19,7 @@ export type AuthUser = {
   isAdmin: boolean;
   hasPassword: boolean;
   emailVerified: boolean;
+  displayName: string; // nickname → "First Family" → email
 };
 
 // --- Password hashing (scrypt; built into Node, nothing to compile) ----------
@@ -85,7 +86,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   if (!pool) return null;
 
   const { rows } = await pool.query(
-    `SELECT u.id, u.email, u.is_admin,
+    `SELECT u.id, u.email, u.is_admin, u.name, u.first_name, u.family_name,
             (u.password_hash IS NOT NULL) AS has_password,
             (u.email_verified_at IS NOT NULL) AS email_verified
        FROM sessions s
@@ -95,12 +96,19 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   );
 
   if (rows.length === 0) return null;
+  const r = rows[0];
+  const fullName = [r.first_name, r.family_name]
+    .map((x: string | null) => (x || "").trim())
+    .filter(Boolean)
+    .join(" ");
+  const displayName = (r.name && r.name.trim()) || fullName || r.email;
   return {
-    id: String(rows[0].id),
-    email: rows[0].email,
-    isAdmin: rows[0].is_admin,
-    hasPassword: rows[0].has_password,
-    emailVerified: rows[0].email_verified,
+    id: String(r.id),
+    email: r.email,
+    isAdmin: r.is_admin,
+    hasPassword: r.has_password,
+    emailVerified: r.email_verified,
+    displayName,
   };
 }
 

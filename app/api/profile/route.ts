@@ -12,7 +12,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ ok: false, error: "Not signed in." }, { status: 401 });
   }
 
-  let body: { name?: string };
+  let body: { name?: string; firstName?: string; familyName?: string };
   try {
     body = await req.json();
   } catch {
@@ -20,10 +20,15 @@ export async function PATCH(req: Request) {
   }
 
   const name = (body.name || "").trim();
+  const firstName = (body.firstName || "").trim();
+  const familyName = (body.familyName || "").trim();
 
   const pool = getPool();
   if (!pool) return NextResponse.json({ ok: false, error: "Database isn't configured." }, { status: 503 });
 
-  await pool.query(`UPDATE users SET name = $1 WHERE id = $2`, [name || null, user.id]);
-  return NextResponse.json({ ok: true, name });
+  await pool.query(
+    `UPDATE users SET name = $1, first_name = $2, family_name = $3 WHERE id = $4`,
+    [name || null, firstName || null, familyName || null, user.id]
+  );
+  return NextResponse.json({ ok: true });
 }

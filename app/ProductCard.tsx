@@ -45,6 +45,11 @@ export default function ProductCard({ product: p }: { product: ProductDisplay })
                   {offered && <>Offered {offered}</>}
                 </p>
               )}
+              {p.liveUrl && (
+                <a className="opp-link" href={p.liveUrl} target="_blank" rel="noreferrer">
+                  Visit the live site ↗
+                </a>
+              )}
             </div>
           </div>
           {p.description

@@ -21,6 +21,7 @@ export type Product = {
   description: string;
   builder: string;
   offeredOn: string | null;
+  liveUrl: string;
   hasScreenshot: boolean;
   stageId: string | null;
   mandateId: string | null;
@@ -146,6 +147,7 @@ export default function ProductsManager({
           description: p.description,
           builder: p.builder,
           offeredOn: p.offeredOn,
+          liveUrl: p.liveUrl,
           stageId: p.stageId,
           mandateId: p.mandateId,
           leverId: p.leverId,
@@ -300,6 +302,17 @@ export default function ProductsManager({
                   onChange={(e) => editLocal(p.id, { offeredOn: e.target.value || null })}
                 />
               </div>
+            </div>
+            <div className="field">
+              <label>
+                Live URL <span>(optional)</span>
+              </label>
+              <input
+                type="url"
+                value={p.liveUrl}
+                onChange={(e) => editLocal(p.id, { liveUrl: e.target.value })}
+                placeholder="https://frockd.com.au"
+              />
             </div>
             <div className="field">
               <label>

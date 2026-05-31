@@ -20,9 +20,10 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 
 ## Data model
 
-- `users` — `id, email (unique), name, password_hash (nullable), is_admin,
-  email_verified_at (nullable), created_at`. `password_hash` format
-  `scrypt$<saltHex>$<hashHex>`; **null** for passwordless leads.
+- `users` — `id, email (unique), name (nickname), first_name, family_name,
+  password_hash (nullable), is_admin, email_verified_at (nullable), created_at`.
+  `password_hash` format `scrypt$<saltHex>$<hashHex>`; **null** for passwordless
+  leads. The name fields are all optional.
 - `sessions` — `id (= sha256 of the cookie token), user_id, expires_at, created_at`.
 - `email_verifications` — verification / magic-link tokens; see
   [email-verification](./email-verification.md).
@@ -45,10 +46,11 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
   admin flag), promote/demote, delete. Guardrails: can't demote or delete
   yourself, and can't remove the last admin.
 - **Profile** (`/profile`): any signed-in user manages their own account — edit
-  name (`PATCH /api/profile`), set/change password (`SetPasswordForm`), and see
-  verification status (with resend). The nav links a marketer's email here (admins
-  to `/admin`, with a Profile link in the admin nav); profile links to "Your deals"
-  and, for admins, the dashboard.
+  nickname + first/family name (all optional, `PATCH /api/profile`), set/change
+  password (`SetPasswordForm`), see verification status (with resend), and sign out.
+  `getCurrentUser` exposes a computed `displayName` (nickname → "First Family" →
+  email) that the nav shows in place of the email. The nav links a marketer here
+  (admins to `/admin`, with a Profile link in the admin nav).
 - **Bootstrapping:** `npm run create-admin -- <email> <password>` (manual), or the
   `ADMIN_EMAIL`/`ADMIN_PASSWORD` env seed on deploy (see
   [deploy-and-migrations](./deploy-and-migrations.md)).

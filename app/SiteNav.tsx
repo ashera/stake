@@ -14,7 +14,7 @@ export default async function SiteNav() {
       </Link>
       {user ? (
         <Link className="nav-account" href={user.isAdmin ? "/admin" : "/profile"}>
-          {user.email}
+          {user.displayName}
         </Link>
       ) : (
         <Link className="nav-login" href="/login">

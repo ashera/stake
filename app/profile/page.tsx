@@ -16,12 +16,19 @@ export default async function ProfilePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  // getCurrentUser doesn't carry the name; fetch it for the form.
+  // getCurrentUser doesn't carry the editable name fields; fetch them for the form.
   let name = "";
+  let firstName = "";
+  let familyName = "";
   const pool = getPool();
   if (pool) {
-    const { rows } = await pool.query(`SELECT name FROM users WHERE id = $1`, [user.id]);
+    const { rows } = await pool.query(
+      `SELECT name, first_name, family_name FROM users WHERE id = $1`,
+      [user.id]
+    );
     name = rows[0]?.name ?? "";
+    firstName = rows[0]?.first_name ?? "";
+    familyName = rows[0]?.family_name ?? "";
   }
 
   return (
@@ -40,7 +47,13 @@ export default async function ProfilePage() {
         {!user.emailVerified && <VerifyBanner email={user.email} />}
 
         <div className="deal-card">
-          <ProfileForm initialName={name} email={user.email} verified={user.emailVerified} />
+          <ProfileForm
+            initialName={name}
+            initialFirstName={firstName}
+            initialFamilyName={familyName}
+            email={user.email}
+            verified={user.emailVerified}
+          />
         </div>
 
         <div className="deal-card">
