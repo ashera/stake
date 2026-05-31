@@ -92,7 +92,7 @@ section.how{padding:90px 0}
 .opp{padding:90px 0}
 .opp-cards{display:flex;flex-direction:column;gap:24px}
 .opp-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:14px}
-.opp-thumb{width:76px;height:76px;object-fit:cover;border-radius:12px;border:1px solid var(--rule);flex-shrink:0}
+.opp-thumb{width:200px;height:120px;object-fit:cover;border-radius:12px;border:1px solid var(--rule);flex-shrink:0}
 .opp-headtext{min-width:0}
 .opp-body .opp-head h3{margin-bottom:0}
 .opp-byline{font-size:14px;color:var(--bone-dim);margin:4px 0 0}
@@ -311,6 +311,8 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
 .my-deal .muted{color:var(--bone-dim);font-weight:400}
 
 @media(max-width:600px){
+  .opp-head{flex-direction:column}
+  .opp-thumb{width:100%;height:170px}
   .auth-card{padding:30px}
   .data-table thead{display:none}
   .data-table,.data-table tbody,.data-table tr,.data-table td{display:block;width:100%}
