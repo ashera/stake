@@ -102,8 +102,34 @@ export default function PartnershipTracker({
     }
   }
 
+  const counts = PROSPECT_STATUSES.map((s) => ({
+    status: s,
+    n: prospects.filter((p) => p.status === s).length,
+  }));
+  const engaged = counts
+    .filter((c) => c.status === "In conversation" || c.status === "Won")
+    .reduce((a, c) => a + c.n, 0);
+
   return (
     <div className="tracker">
+      <div className="tracker-goalwrap">
+        <div className={`tracker-goal${engaged >= 1 ? " is-met" : ""}`}>
+          <div>
+            <div className="eyebrow">90-day goal</div>
+            <strong>1 marketer engaged</strong>
+            <p className="muted">A prospect &ldquo;In conversation&rdquo; or &ldquo;Won&rdquo; counts.</p>
+          </div>
+          <div className="tracker-goal-status">{engaged >= 1 ? "Met ✓" : `${engaged} / 1`}</div>
+        </div>
+        <div className="tracker-funnel">
+          {counts.map((c) => (
+            <span className="funnel-stat" key={c.status}>
+              {c.status} <strong>{c.n}</strong>
+            </span>
+          ))}
+        </div>
+      </div>
+
       <div className="tracker-principles">
         <h3>Ground rules</h3>
         <ul>
