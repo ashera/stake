@@ -6,7 +6,21 @@
 
 ## One-liner
 
-A two-sided marketplace (**Traxn** — domain `traxnhq.com`) that pairs technical builders who've shipped a product with growth/marketing partners on a **revenue-share** basis, and acts as the **trust + verification layer** (verifies revenue, handles payouts) so two strangers can do a deal. Pilot product: **Frockd.com.au**.
+**Traxn** (domain `traxnhq.com`) is a **build studio** that ships live products with no audience and partners with growth people on **revenue-share** to scale them. The Traxn team are the builders; Traxn lists its *own* products and takes **no fee** — revenue is the studio's share of what those products earn. Kept builder-neutral so it *could* open to third-party builders later. Pilot product: **Frockd.com.au**; product #2: an e-bike marketplace. (See **Commercial model** below — this supersedes the earlier "two-sided marketplace + trust/verification/payout layer" framing.)
+
+## Commercial model (current)
+
+> Supersedes the "marketplace that takes a cut + trust/verification/payout layer" assumption in decision-chain item 8. We pivoted to a **studio**.
+
+- **Traxn is a build studio, not a fee-taking marketplace.** The team are builders; we list our **own** live products and partner with growth people on **rev-share**. Traxn charges nothing. Revenue is the studio's share of revenue from its own products.
+- **No third-party trust/payment layer needed.** Traxn is one side of every deal, so there's no stranger-to-stranger trust problem and no payment rail to build: we're the builder, the numbers are ours and shown openly, and we pay the marketer their share directly each month. The verification/escrow/payout plumbing from the original model is **not built and not needed** for now.
+- **Studio now, option to open later — don't design into a corner.** The data model is already **builder-neutral** (products belong to a `builder_id`; builders are flagged users with public profiles), so opening to third-party builders would be a positioning + trust-layer change, not a re-architecture. Do **not** build fees, payments, revenue verification, or builder self-signup yet.
+- **Cadence is the hook.** ~**1 new live product / month** → a portfolio/pipeline. The cadence *is* the pitch — a stream of upside bets, "always another coming" — matching the marketer ICP ("a portfolio of upside bets, not a single founder vow").
+- **Thesis = marketplace growth.** Products so far (Frockd, the e-bike marketplace) are **marketplaces** → same growth lever (two-sided demand). Sharpens the pitch to "**marketplace-growth specialist across a portfolio**" and makes a marketer's skill compound. Risk: marketplace growth is the hardest kind and that talent is the scarcest.
+- **Bench model.** Proven marketers get first pick of new products. The **bench of trusted growth partners is the compounding asset**, more than the products — each successful deal is the credential that staffs the next.
+- **The bottleneck is marketers, not products.** Building is cheap; finding ~1 quality marketplace-growth partner/month is the constraint. **Success metric = active partnerships producing revenue, not products listed.**
+- **90-day goal: 1 marketer *truly* engaged** — term sheet signed *and* actively working a product (not "expressed interest"). Case zero = Frockd.
+- **Future conflict to manage (if/when opening up):** the studio would compete for the same marketers on a platform it controls (owns the `featured` slot). Design for fairness then.
 
 ## Who I am / origin
 
@@ -61,6 +75,8 @@ Indie Hackers, r/SaaS, r/marketing, MicroConf / SaaS-growth Slacks, build-in-pub
 
 ## What's been built so far
 
+> **Current state of the app lives in [`docs/specs/`](./specs/)** — it now has admin auth + user/builder management, DB-backed products with an edit wizard, the deal entity + express-interest wizard, reference data, the `/opportunities` browse + detail pages, email verification / magic-link, and an in-app events log. The items below are **historical** (the original v0).
+
 1. **`Frockd-Growth-Partnership.docx`** — concept one-pager + full term sheet (as a table) + next-step page.
 2. **`stake-landing.html`** — original standalone landing page (single HTML file). Superseded by the repo below but still valid as a quick reference.
 3. **`stake-repo.zip`** — the landing page rebuilt as a proper Next.js + TS + Postgres repo (the real v0). Builds cleanly. Structure:
@@ -76,7 +92,7 @@ Indie Hackers, r/SaaS, r/marketing, MicroConf / SaaS-growth Slacks, build-in-pub
 
 1. **Cold-start** — seeding the scarce marketer side is make-or-break. The landing page exists to test this.
 2. **Attribution** — clean at $0 baseline; gets murky the moment there's an existing revenue baseline.
-3. **Trust** — the verification/payout layer is the answer, but has to work day one.
+3. **Trust** — moot under the studio model (Traxn is the builder and pays the marketer directly). Becomes relevant again only if Traxn opens to third-party builders.
 4. **Vibe-code tension** — if an idea is simple enough to build in a weekend, the marketer may not need a builder at all; builders are truly needed only for harder builds, which revive time-risk. Don't let the middle hollow out.
 5. **Naming** — decided: **Traxn**, domain `traxnhq.com` (exact `traxn.com` taken; note possible confusion with the "Tracxn" company — worth a trademark check before heavy spend).
 

@@ -1,12 +1,15 @@
 # Traxn
 
-Concierge-MVP site for a rev-share marketplace pairing technical builders with
-growth partners. This is **v0**: its job is to test the make-or-break assumption
-— *will the right marketers respond?* — by pitching live opportunities (pilot:
-Frockd.com.au) and capturing interest as **deals** via a per-product wizard.
+Site for **Traxn**, a **build studio** that ships its own live products and
+partners with growth people on **revenue-share** to scale them — no fee, the
+studio earns from its products. This is **v0**: its job is to test the
+make-or-break assumption — *will the right marketers respond?* — by pitching live
+opportunities (pilot: Frockd.com.au; #2: an e-bike marketplace) and capturing
+interest as **deals** via a per-product wizard.
 
-A human runs the matching behind the curtain. Build the rest only after this
-proves marketers bite.
+Studio for now, kept builder-neutral so it could open to third-party builders
+later. The commercial model is documented in
+[`docs/PROJECT-CONTEXT.md`](./docs/PROJECT-CONTEXT.md).
 
 ## Specs
 
@@ -125,7 +128,7 @@ git push -u origin main
 
 ## Admin login & user management
 
-The site has an admin-only login (no public signup yet) gating a concierge
+The site has an admin-only login (no public signup yet) gating the admin
 dashboard at `/admin` — triage deals and manage users. Auth is rolled in
 `lib/auth.ts`: scrypt password hashing (Node built-in, no native dependency) and
 random session tokens stored as SHA-256 in the `sessions` table.

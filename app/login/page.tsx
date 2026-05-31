@@ -23,7 +23,7 @@ export default async function LoginPage({
           Traxn
         </Link>
         <h1>Sign in</h1>
-        <p className="lede">Access your deals and the concierge dashboard.</p>
+        <p className="lede">Access your deals and account.</p>
         {searchParams.verify === "invalid" && (
           <div className="banner banner-warn">
             That link was invalid or expired — request a new one below.

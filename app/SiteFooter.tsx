@@ -14,7 +14,7 @@ export default function SiteFooter() {
           </span>
         )}
       </div>
-      <div>A concierge experiment — humans behind the curtain, on purpose.</div>
+      <div>A build studio — we ship the products, you own the growth.</div>
     </footer>
   );
 }
