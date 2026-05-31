@@ -11,8 +11,6 @@ const REVSHARE_OPTIONS = [
   "No — I need cash",
 ];
 
-const STEPS = ["You", "Track record", "Fit", "Review"];
-
 export default function ExpressInterestWizard({
   productId,
   productName,
@@ -25,7 +23,16 @@ export default function ExpressInterestWizard({
   signedInEmail: string | null;
 }) {
   const router = useRouter();
+
+  // Signed-in users skip the "You" step — the deal attaches to their account.
+  const STEPS = signedInEmail
+    ? ["Track record", "Fit", "Review"]
+    : ["You", "Track record", "Fit", "Review"];
+
   const [step, setStep] = useState(0);
+  const current = STEPS[step];
+  const isLast = step === STEPS.length - 1;
+
   const [form, setForm] = useState({
     name: "",
     email: signedInEmail ?? "",
@@ -47,7 +54,7 @@ export default function ExpressInterestWizard({
 
   function next() {
     setError("");
-    if (step === 0 && !signedInEmail) {
+    if (current === "You") {
       if (!form.name.trim() || !form.email.trim() || !form.email.includes("@")) {
         setError("Pop in your name and a valid email so we can get back to you.");
         return;
@@ -96,6 +103,11 @@ export default function ExpressInterestWizard({
         <div className="eyebrow">Express interest</div>
         <h1>{productName}</h1>
         {productCategory && <p className="sub">{productCategory}</p>}
+        {signedInEmail && (
+          <p className="note">
+            Signed in as <strong>{signedInEmail}</strong> — this will attach to your account.
+          </p>
+        )}
       </div>
 
       <ol className="wizard-steps">
@@ -108,41 +120,37 @@ export default function ExpressInterestWizard({
       </ol>
 
       <div className="form-card">
-        {step === 0 && (
+        {current === "You" && (
           <div>
             <h2>About you</h2>
             <p className="lede">We just need a way to reach you. Two fields.</p>
-            {signedInEmail ? (
-              <p className="note">
-                Signed in as <strong>{signedInEmail}</strong> — this will attach to your account.
-              </p>
-            ) : (
-              <>
-                <div className="field">
-                  <label>Name <span>(or what you go by)</span></label>
-                  <input type="text" value={form.name} onChange={set("name")} placeholder="Alex Rivera" />
-                </div>
-                <div className="field">
-                  <label>Email</label>
-                  <input type="email" value={form.email} onChange={set("email")} placeholder="you@email.com" />
-                </div>
-                <div className="field">
-                  <label>Password <span>(optional — set one to come back to your deal later)</span></label>
-                  <input
-                    type="password"
-                    value={form.password}
-                    onChange={set("password")}
-                    autoComplete="new-password"
-                    placeholder="Leave blank for now if you like"
-                  />
-                  <p className="note">No pressure — you can secure your account from your deal page afterward.</p>
-                </div>
-              </>
-            )}
+            <div className="field">
+              <label>
+                Name <span>(or what you go by)</span>
+              </label>
+              <input type="text" value={form.name} onChange={set("name")} placeholder="Alex Rivera" />
+            </div>
+            <div className="field">
+              <label>Email</label>
+              <input type="email" value={form.email} onChange={set("email")} placeholder="you@email.com" />
+            </div>
+            <div className="field">
+              <label>
+                Password <span>(optional — set one to come back to your deal later)</span>
+              </label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={set("password")}
+                autoComplete="new-password"
+                placeholder="Leave blank for now if you like"
+              />
+              <p className="note">No pressure — you can secure your account from your deal page afterward.</p>
+            </div>
           </div>
         )}
 
-        {step === 1 && (
+        {current === "Track record" && (
           <div>
             <h2>What you&apos;ve grown</h2>
             <p className="lede">One honest signal that you can do this — the kind that&apos;s hard to fake.</p>
@@ -161,7 +169,7 @@ export default function ExpressInterestWizard({
           </div>
         )}
 
-        {step === 2 && (
+        {current === "Fit" && (
           <div>
             <h2>The fit</h2>
             <p className="lede">How you&apos;d approach this one.</p>
@@ -196,7 +204,7 @@ export default function ExpressInterestWizard({
           </div>
         )}
 
-        {step === 3 && (
+        {current === "Review" && (
           <div>
             <h2>Look good?</h2>
             <p className="lede">Here&apos;s what we&apos;ll send. You can step back and edit.</p>
@@ -230,7 +238,7 @@ export default function ExpressInterestWizard({
           ) : (
             <span />
           )}
-          {step < STEPS.length - 1 ? (
+          {!isLast ? (
             <button className="btn btn-primary" onClick={next}>
               Next →
             </button>
