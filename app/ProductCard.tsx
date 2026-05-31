@@ -12,8 +12,19 @@ export default function ProductCard({ product: p }: { product: ProductDisplay })
     ["Deal", p.deal],
   ];
 
+  const offered = p.offeredOn
+    ? new Date(`${p.offeredOn}T00:00:00`).toLocaleDateString("en-AU", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : null;
+
   return (
     <div className="opp-card">
+      {p.id && p.hasScreenshot && (
+        <img className="opp-shot" src={`/api/products/${p.id}/screenshot`} alt={`${p.name} preview`} />
+      )}
       <div className="opp-top">
         <span className="badge">{formatBadge(p.status, p.spots)}</span>
         <span style={{ color: "var(--bone-dim)", fontSize: 14 }}>{p.category}</span>
@@ -21,6 +32,13 @@ export default function ProductCard({ product: p }: { product: ProductDisplay })
       <div className="opp-body">
         <div>
           <h3>{p.name}</h3>
+          {(p.builder || offered) && (
+            <p className="opp-byline">
+              {p.builder && <>Built by {p.builder}</>}
+              {p.builder && offered && " · "}
+              {offered && <>Offered {offered}</>}
+            </p>
+          )}
           {p.description
             .split(/\n\s*\n/)
             .map((para) => para.trim())

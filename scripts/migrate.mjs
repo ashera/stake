@@ -160,6 +160,12 @@ try {
         AND NOT EXISTS (SELECT 1 FROM products WHERE featured = true)`
   );
 
+  // 1g. Extra product fields: builder nickname, offered date, screenshot. Idempotent.
+  await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS builder TEXT`);
+  await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS offered_on DATE`);
+  await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS screenshot BYTEA`);
+  await client.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS screenshot_type TEXT`);
+
   // 1e. Users gain a nullable `name`, an optional password, and an email-verified
   //     timestamp — marketer leads are created passwordless by the wizard. Idempotent.
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT`);

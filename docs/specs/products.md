@@ -19,11 +19,15 @@ publicly.
 
 ## Data model
 
-`products` — `id, name, category, status, spots, description, stage_id,
-mandate_id, lever_id, deal_id, published, featured, position, created_at`.
+`products` — `id, name, category, status, spots, description, builder, offered_on,
+screenshot (bytea), screenshot_type, stage_id, mandate_id, lever_id, deal_id,
+published, featured, position, created_at`.
 
 - `status` (text, e.g. "Open") + `spots` (int) combine into the card pill.
 - `description` may hold multiple paragraphs separated by a blank line.
+- `builder` (nickname) and `offered_on` (date) show as a byline on the card.
+- `screenshot` holds an uploaded image of a product page (≤2 MB) served by the
+  app; admin reads never select the bytes — only `(screenshot IS NOT NULL)`.
 - `stage_id` / `mandate_id` / `lever_id` / `deal_id` are FKs into
   `reference_options` (`ON DELETE SET NULL`) — see [reference-data](./reference-data.md).
 - `featured` — exactly one product is featured; it's the single product shown on
@@ -51,6 +55,11 @@ mandate_id, lever_id, deal_id, published, featured, position, created_at`.
   **featured toggle**, reorder, delete.
 - **Featured is exclusive:** the `PATCH` runs in a transaction that clears
   `featured` on all other products when one is set, so there's always at most one.
+- **Screenshot upload:** the admin form uploads via `POST
+  /api/admin/products/[id]/screenshot` (multipart, image only, ≤2 MB), stored as
+  bytea; `DELETE` clears it. It's served by `GET /api/products/[id]/screenshot`
+  (public for published products; drafts admin-only). The card renders it as a
+  top banner. (Builder/offered date are saved with the normal JSON `PATCH`.)
 - **Seed:** the Frockd product seeded on first deploy only when the table is empty.
 
 ## API / Interfaces

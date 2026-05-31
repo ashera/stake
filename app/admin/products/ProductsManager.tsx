@@ -19,6 +19,9 @@ export type Product = {
   status: string;
   spots: number;
   description: string;
+  builder: string;
+  offeredOn: string | null;
+  hasScreenshot: boolean;
   stageId: string | null;
   mandateId: string | null;
   leverId: string | null;
@@ -72,9 +75,45 @@ export default function ProductsManager({
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [shotBusyId, setShotBusyId] = useState<string | null>(null);
+  // Cache-buster per product so the <img> refreshes after a new upload.
+  const [bust, setBust] = useState<Record<string, number>>({});
 
   function editLocal(id: string, patch: Partial<Product>) {
     setProducts((ps) => ps.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  }
+
+  async function uploadScreenshot(p: Product, file: File) {
+    setError("");
+    setShotBusyId(p.id);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch(`/api/admin/products/${p.id}/screenshot`, { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Upload failed.");
+      editLocal(p.id, { hasScreenshot: true });
+      setBust((b) => ({ ...b, [p.id]: Date.now() }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setShotBusyId(null);
+    }
+  }
+
+  async function removeScreenshot(p: Product) {
+    setError("");
+    setShotBusyId(p.id);
+    try {
+      const res = await fetch(`/api/admin/products/${p.id}/screenshot`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't remove.");
+      editLocal(p.id, { hasScreenshot: false });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't remove.");
+    } finally {
+      setShotBusyId(null);
+    }
   }
 
   async function addProduct() {
@@ -105,6 +144,8 @@ export default function ProductsManager({
           status: p.status,
           spots: p.spots,
           description: p.description,
+          builder: p.builder,
+          offeredOn: p.offeredOn,
           stageId: p.stageId,
           mandateId: p.mandateId,
           leverId: p.leverId,
@@ -238,6 +279,63 @@ export default function ProductsManager({
                 onChange={(e) => editLocal(p.id, { category: e.target.value })}
                 placeholder="Formal-dress marketplace · Australia"
               />
+            </div>
+            <div className="row2">
+              <div className="field">
+                <label>
+                  Builder <span>(nickname)</span>
+                </label>
+                <input
+                  type="text"
+                  value={p.builder}
+                  onChange={(e) => editLocal(p.id, { builder: e.target.value })}
+                  placeholder="e.g. Adam"
+                />
+              </div>
+              <div className="field">
+                <label>Date offered</label>
+                <input
+                  type="date"
+                  value={p.offeredOn ?? ""}
+                  onChange={(e) => editLocal(p.id, { offeredOn: e.target.value || null })}
+                />
+              </div>
+            </div>
+            <div className="field">
+              <label>
+                Screenshot <span>(a page from the product · max 2 MB)</span>
+              </label>
+              <div className="shot-row">
+                {p.hasScreenshot && (
+                  <img
+                    className="shot-thumb"
+                    src={`/api/products/${p.id}/screenshot?t=${bust[p.id] ?? 0}`}
+                    alt={`${p.name} screenshot`}
+                  />
+                )}
+                <div className="shot-actions">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={shotBusyId === p.id}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) uploadScreenshot(p, file);
+                      e.target.value = "";
+                    }}
+                  />
+                  {p.hasScreenshot && (
+                    <button
+                      className="btn-sm btn-danger-sm"
+                      onClick={() => removeScreenshot(p)}
+                      disabled={shotBusyId === p.id}
+                    >
+                      Remove
+                    </button>
+                  )}
+                  {shotBusyId === p.id && <span className="muted">Uploading…</span>}
+                </div>
+              </div>
             </div>
             <div className="row2">
               <div className="field">

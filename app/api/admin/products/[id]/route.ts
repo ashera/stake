@@ -13,6 +13,8 @@ type UpdateBody = {
   status?: string;
   spots?: number;
   description?: string;
+  builder?: string;
+  offeredOn?: string | null;
   stageId?: string | null;
   mandateId?: string | null;
   leverId?: string | null;
@@ -50,7 +52,7 @@ export async function PATCH(req: Request, { params }: Params) {
   const pool = getPool();
   if (!pool) return NextResponse.json({ ok: false, error: "Database isn't configured." }, { status: 503 });
 
-  const trim = (s?: string) => (s || "").trim() || null;
+  const trim = (s?: string | null) => (s || "").trim() || null;
   const status = (body.status || "").trim() || "Open";
   const spotsNum = Number(body.spots);
   const spots = Number.isFinite(spotsNum) ? Math.max(0, Math.trunc(spotsNum)) : 1;
@@ -63,9 +65,10 @@ export async function PATCH(req: Request, { params }: Params) {
     const { rows } = await client.query(
       `UPDATE products
           SET name = $1, category = $2, status = $3, spots = $4, description = $5,
-              stage_id = $6, mandate_id = $7, lever_id = $8, deal_id = $9,
-              published = $10, featured = $11
-        WHERE id = $12
+              builder = $6, offered_on = $7,
+              stage_id = $8, mandate_id = $9, lever_id = $10, deal_id = $11,
+              published = $12, featured = $13
+        WHERE id = $14
         RETURNING ${PRODUCT_COLUMNS}`,
       [
         name,
@@ -73,6 +76,8 @@ export async function PATCH(req: Request, { params }: Params) {
         status,
         spots,
         trim(body.description),
+        trim(body.builder),
+        trim(body.offeredOn), // 'YYYY-MM-DD' or null; cast by the date column
         refId(body.stageId),
         refId(body.mandateId),
         refId(body.leverId),

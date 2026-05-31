@@ -86,6 +86,10 @@ CREATE TABLE IF NOT EXISTS products (
   mandate_id   BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
   lever_id     BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
   deal_id      BIGINT      REFERENCES reference_options (id) ON DELETE SET NULL,
+  builder      TEXT,                  -- builder's nickname
+  offered_on   DATE,                  -- when the opportunity was offered
+  screenshot      BYTEA,              -- a screenshot of a product page
+  screenshot_type TEXT,               -- its mime type, e.g. image/png
   published    BOOLEAN     NOT NULL DEFAULT false,
   featured     BOOLEAN     NOT NULL DEFAULT false,
   position     INTEGER     NOT NULL DEFAULT 0,
