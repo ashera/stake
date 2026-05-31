@@ -9,7 +9,7 @@ export default async function AdminDeals() {
   return (
     <section>
       <div className="admin-head">
-        <h1>Deals</h1>
+        <h1>Deal Management</h1>
         <span className="count">{deals.length} total</span>
       </div>
       <p className="lede">
