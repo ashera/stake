@@ -22,23 +22,31 @@ export default function ProductCard({ product: p }: { product: ProductDisplay })
 
   return (
     <div className="opp-card">
-      {p.id && p.hasScreenshot && (
-        <img className="opp-shot" src={`/api/products/${p.id}/screenshot`} alt={`${p.name} preview`} />
-      )}
       <div className="opp-top">
         <span className="badge">{formatBadge(p.status, p.spots)}</span>
         <span style={{ color: "var(--bone-dim)", fontSize: 14 }}>{p.category}</span>
       </div>
       <div className="opp-body">
         <div>
-          <h3>{p.name}</h3>
-          {(p.builder || offered) && (
-            <p className="opp-byline">
-              {p.builder && <>Built by {p.builder}</>}
-              {p.builder && offered && " · "}
-              {offered && <>Offered {offered}</>}
-            </p>
-          )}
+          <div className="opp-head">
+            {p.id && p.hasScreenshot && (
+              <img
+                className="opp-thumb"
+                src={`/api/products/${p.id}/screenshot`}
+                alt={`${p.name} preview`}
+              />
+            )}
+            <div className="opp-headtext">
+              <h3>{p.name}</h3>
+              {(p.builder || offered) && (
+                <p className="opp-byline">
+                  {p.builder && <>Built by {p.builder}</>}
+                  {p.builder && offered && " · "}
+                  {offered && <>Offered {offered}</>}
+                </p>
+              )}
+            </div>
+          </div>
           {p.description
             .split(/\n\s*\n/)
             .map((para) => para.trim())

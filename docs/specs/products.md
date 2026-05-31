@@ -59,7 +59,8 @@ published, featured, position, created_at`.
   /api/admin/products/[id]/screenshot` (multipart, image only, ≤2 MB), stored as
   bytea; `DELETE` clears it. It's served by `GET /api/products/[id]/screenshot`
   (public for published products; drafts admin-only). The card renders it as a
-  top banner. (Builder/offered date are saved with the normal JSON `PATCH`.)
+  small thumbnail to the left of the title + byline (no vertical banner height).
+  (Builder/offered date are saved with the normal JSON `PATCH`.)
 - **Seed:** the Frockd product seeded on first deploy only when the table is empty.
 
 ## API / Interfaces
