@@ -5,7 +5,7 @@ import SiteFooter from "../SiteFooter";
 export const metadata = {
   title: "Traxn — how it works",
   description:
-    "How Traxn works: we hand a growth partner one live product, they own all of growth and take a real share of every dollar they bring in.",
+    "How Traxn works: we're a studio shipping live products with no audience. Partner with us on growth and take a real share of the revenue you create.",
 };
 
 export default async function HowItWorks() {
@@ -21,9 +21,9 @@ export default async function HowItWorks() {
           You own growth. You take a <em>cut</em>.
         </h1>
         <p className="sub">
-          There are good products sitting at zero audience — built, live, and quietly going nowhere.
-          We hand you one, you own all of growth, and you take a real share of every dollar you bring
-          in. No retainer. No equity gamble on a pitch deck.
+          We&apos;re a studio that ships live products with no audience — built, working, and quietly
+          going nowhere. Pick one, own all of growth, and take a real share of every dollar you bring
+          in. No retainer, no equity gamble — and we don&apos;t clip your cut.
         </p>
       </header>
 
@@ -60,11 +60,12 @@ export default async function HowItWorks() {
         <div className="steps">
           <div className="step">
             <div className="n">01</div>
-            <h3>We match you to one live product</h3>
+            <h3>Pick a live product to grow</h3>
             <p>
-              Not a marketplace to browse — a single, hand-picked product that works but has no
-              audience. You get 20 minutes with the builder to judge whether it&apos;s winnable. Walk
-              away freely if it isn&apos;t.
+              We ship new live products — mostly marketplaces — roughly every month. Browse what&apos;s
+              open and pick one, or we&apos;ll point you to the sharpest fit. Twenty minutes with the
+              builder to judge if it&apos;s winnable; walk away freely if it isn&apos;t. Do well, and
+              you get first pick of the next.
             </p>
           </div>
           <div className="step">
@@ -80,8 +81,9 @@ export default async function HowItWorks() {
             <h3>You take a cut of what you create</h3>
             <p>
               Revenue starts at a clean zero baseline, so everything after you join is plausibly
-              yours. We sit in the payment flow, verify the numbers, and pay you monthly. No chasing
-              the builder for your share.
+              yours. We&apos;re the builder, so the numbers are ours and open to you — we pay your
+              share directly, every month. No middleman taking a slice, no chasing for what
+              you&apos;re owed.
             </p>
           </div>
         </div>
@@ -90,9 +92,9 @@ export default async function HowItWorks() {
           <div>
             <h3>The shape of the deal</h3>
             <p>
-              Illustrative terms — every product is scoped individually. The point is alignment: you
-              only win when the product wins, and the baseline starts at zero so your contribution is
-              never in dispute.
+              Illustrative terms — every product is scoped individually. The point is alignment:
+              we&apos;re builders too, so we only make money when the product does, exactly like you.
+              The baseline starts at zero, so your contribution is never in dispute.
             </p>
             <p className="note">
               Judged on real sales, not vanity signups. A 90-day checkpoint keeps both sides honest —
