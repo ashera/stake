@@ -44,6 +44,10 @@ published, featured, position, created_at`.
   wizard, see [deals](./deals.md)). `getPublishedProductById()` loads a single
   published product for the wizard's context.
   - **Home** shows the single featured product via `getFeaturedProduct()`.
+  - **`/opportunities`** is a 3-column grid of brief cards (`OpportunityCard`),
+    each linking to **`/opportunities/[id]`** — a detail page rendering the full
+    `ProductCard` (`getPublishedProductById`, 404 if not found/published). Reachable
+    from the nav.
   - **`/how-it-works`** shows the full list via `getPublishedProducts()` — both
     join the attribute FKs to resolve `{ label, description }`, return only
     published rows by `position`, and fall back to `DEFAULT_PRODUCTS` if the DB is

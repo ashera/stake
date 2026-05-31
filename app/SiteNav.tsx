@@ -14,6 +14,9 @@ export default async function SiteNav() {
         Traxn
       </Link>
       <div className="nav-right">
+        <Link className="nav-link" href="/opportunities">
+          Opportunities
+        </Link>
         <Link className="nav-link" href="/how-it-works">
           How it works
         </Link>

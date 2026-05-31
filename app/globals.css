@@ -28,7 +28,7 @@ body::before{
 }
 .wrap{max-width:1100px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
 
-nav{display:flex;justify-content:space-between;align-items:center;padding:26px 0;border-bottom:1px solid var(--rule)}
+nav{display:flex;justify-content:space-between;align-items:center;padding:26px 0;border-bottom:1px solid var(--rule);flex-wrap:wrap;gap:12px 20px}
 .brand{font-family:var(--serif);font-weight:600;font-size:25px;letter-spacing:-.5px;display:flex;align-items:center;gap:9px;color:var(--bone);text-decoration:none}
 .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--acid);box-shadow:0 0 14px rgba(198,242,78,.7)}
 .brand small{font-family:var(--sans);font-weight:500;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--bone-dim);border:1px solid var(--rule);padding:3px 7px;border-radius:20px}
@@ -107,6 +107,19 @@ section.how{padding:90px 0}
 
 .opp{padding:90px 0}
 .opp-cards{display:flex;flex-direction:column;gap:24px}
+
+/* opportunities grid (3-col brief cards) */
+.opp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.opp-mini{display:flex;flex-direction:column;border:1px solid var(--rule);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--ink-2),transparent);text-decoration:none;color:var(--bone);transition:border-color .25s,transform .25s}
+.opp-mini:hover{border-color:rgba(198,242,78,.35);transform:translateY(-4px)}
+.opp-mini-shot{width:100%;height:150px;object-fit:cover;border-bottom:1px solid var(--rule)}
+.opp-mini-body{padding:22px 24px;display:flex;flex-direction:column;gap:9px;align-items:flex-start}
+.opp-mini-body h3{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.4px;line-height:1.15}
+.opp-mini-cat{font-size:13px;color:var(--bone-dim)}
+.opp-mini-desc{font-size:14px;color:var(--bone-dim);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.opp-mini-cta{margin-top:2px;color:var(--acid);font-weight:600;font-size:14px}
+@media(max-width:820px){.opp-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.opp-grid{grid-template-columns:1fr}}
 .opp-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:14px}
 .opp-thumb{width:200px;height:120px;object-fit:cover;border-radius:12px;border:1px solid var(--rule);flex-shrink:0}
 .opp-headtext{min-width:0}
