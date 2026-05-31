@@ -1,9 +1,6 @@
-import Link from "next/link";
 import { getDealTerms } from "@/lib/deal";
-import { getPublishedProducts } from "@/lib/products";
 import SiteNav from "../SiteNav";
 import SiteFooter from "../SiteFooter";
-import ProductCard from "../ProductCard";
 
 export const metadata = {
   title: "Traxn — how it works",
@@ -12,7 +9,7 @@ export const metadata = {
 };
 
 export default async function HowItWorks() {
-  const [dealTerms, products] = await Promise.all([getDealTerms(), getPublishedProducts()]);
+  const dealTerms = await getDealTerms();
 
   return (
     <div className="wrap">
@@ -115,22 +112,6 @@ export default async function HowItWorks() {
           </div>
         </div>
       </section>
-
-      {products.length > 0 && (
-        <section className="opp" id="opportunities">
-          <div className="section-label">Live opportunities</div>
-          <h2 className="section-title">
-            {products.length === 1
-              ? "One product is on the table right now."
-              : "Products on the table right now."}
-          </h2>
-          <div className="opp-cards">
-            {products.map((p, i) => (
-              <ProductCard key={p.id ?? i} product={p} />
-            ))}
-          </div>
-        </section>
-      )}
 
       <SiteFooter />
     </div>
