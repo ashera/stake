@@ -17,8 +17,8 @@ export default async function Home() {
           Own growth for products that already <em>work</em>.
         </h1>
         <p className="sub">
-          We hand you one live product with no audience. You own all of growth and take a real share
-          of every dollar you bring in. No retainer, no equity gamble — just upside on something real.
+          One live product, no audience. You own all of growth and take a real cut of every dollar
+          you bring in — no retainer, no equity gamble.
         </p>
         <div className="hero-cta">
           <Link className="btn btn-ghost" href="/how-it-works">
