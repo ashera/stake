@@ -36,6 +36,9 @@ nav a.nav-login{font-weight:600;font-size:15px;color:var(--bone);text-decoration
 nav a.nav-login:hover{border-color:var(--bone-dim);background:rgba(244,239,230,.05)}
 nav .nav-account{font-weight:600;font-size:15px;color:var(--acid);text-decoration:none}
 nav a.nav-account:hover{text-decoration:underline}
+.nav-right{display:flex;align-items:center;gap:20px}
+nav a.nav-link{font-weight:600;font-size:15px;color:var(--bone-dim);text-decoration:none}
+nav a.nav-link:hover{color:var(--bone)}
 
 header{padding:90px 0 70px}
 .eyebrow{font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acid-deep);font-weight:600;margin-bottom:26px;opacity:0;animation:rise .7s .05s forwards}

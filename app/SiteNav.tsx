@@ -12,15 +12,20 @@ export default async function SiteNav() {
         <span className="dot" />
         Traxn
       </Link>
-      {user ? (
-        <Link className="nav-account" href={user.isAdmin ? "/admin" : "/profile"}>
-          {user.displayName}
+      <div className="nav-right">
+        <Link className="nav-link" href="/how-it-works">
+          How it works
         </Link>
-      ) : (
-        <Link className="nav-login" href="/login">
-          Log in
-        </Link>
-      )}
+        {user ? (
+          <Link className="nav-account" href={user.isAdmin ? "/admin" : "/profile"}>
+            {user.displayName}
+          </Link>
+        ) : (
+          <Link className="nav-login" href="/login">
+            Log in
+          </Link>
+        )}
+      </div>
     </nav>
   );
 }

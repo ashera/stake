@@ -20,11 +20,6 @@ export default async function Home() {
           One live product, no audience. You own all of growth and take a real cut of every dollar
           you bring in — no retainer, no equity gamble.
         </p>
-        <div className="hero-cta">
-          <Link className="btn btn-ghost" href="/how-it-works">
-            How it works
-          </Link>
-        </div>
       </header>
 
       {featured && (
