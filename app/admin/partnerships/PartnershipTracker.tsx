@@ -1,17 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { CHANNELS, PRINCIPLES, PROSPECT_STATUSES, type Prospect } from "@/lib/partnerships";
+import { CHANNELS, PRINCIPLES, PROSPECT_STATUSES, type Prospect, type Post } from "@/lib/partnerships";
 
 export default function PartnershipTracker({
   initialProspects,
   doneKeys,
+  initialPosts,
 }: {
   initialProspects: Prospect[];
   doneKeys: string[];
+  initialPosts: Post[];
 }) {
   const [prospects, setProspects] = useState<Prospect[]>(initialProspects);
   const [done, setDone] = useState<Set<string>>(new Set(doneKeys));
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [savedPostId, setSavedPostId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [draft, setDraft] = useState({ name: "", channel: "", link: "" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -102,6 +107,71 @@ export default function PartnershipTracker({
     }
   }
 
+  function editPostLocal(id: string, patch: Partial<Post>) {
+    setPosts((ps) => ps.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  }
+
+  async function addPost() {
+    setError("");
+    setBusy(true);
+    try {
+      const res = await fetch("/api/admin/partnerships/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: "New post", channel: "", body: "" }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't add.");
+      setPosts((ps) => [...ps, data.post]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't add.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function savePost(post: Post) {
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/partnerships/posts/${post.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: post.title, channel: post.channel, body: post.body }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't save.");
+      setSavedPostId(post.id);
+      setTimeout(() => setSavedPostId((id) => (id === post.id ? null : id)), 1600);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't save.");
+    }
+  }
+
+  async function deletePost(post: Post) {
+    if (!confirm(`Delete "${post.title}"?`)) return;
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/admin/partnerships/posts/${post.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't delete.");
+      setPosts((ps) => ps.filter((p) => p.id !== post.id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't delete.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copyPost(post: Post) {
+    try {
+      await navigator.clipboard.writeText(post.body);
+      setCopiedId(post.id);
+      setTimeout(() => setCopiedId((id) => (id === post.id ? null : id)), 1600);
+    } catch {
+      setError("Couldn't copy — select and copy manually.");
+    }
+  }
+
   const counts = PROSPECT_STATUSES.map((s) => ({
     status: s,
     n: prospects.filter((p) => p.status === s).length,
@@ -181,6 +251,55 @@ export default function PartnershipTracker({
             );
           })}
         </div>
+      </div>
+
+      <div>
+        <div className="posts-head">
+          <h2 className="tracker-h2">Outreach posts</h2>
+          <button className="btn-sm btn-primary-sm" onClick={addPost} disabled={busy}>
+            + New post
+          </button>
+        </div>
+        <p className="muted posts-hint">
+          Templates to copy and tweak — fill the {"{placeholders}"} and send. Hit Save to keep edits.
+        </p>
+        {posts.length === 0 ? (
+          <div className="empty">No posts yet — add one.</div>
+        ) : (
+          posts.map((post) => (
+            <div className="post-card" key={post.id}>
+              <div className="post-head">
+                <input
+                  className="post-title"
+                  value={post.title}
+                  onChange={(e) => editPostLocal(post.id, { title: e.target.value })}
+                />
+                <input
+                  className="post-channel"
+                  value={post.channel}
+                  placeholder="channel"
+                  onChange={(e) => editPostLocal(post.id, { channel: e.target.value })}
+                />
+                <div className="post-actions">
+                  <button className="btn-sm btn-ghost-sm" onClick={() => copyPost(post)}>
+                    {copiedId === post.id ? "Copied ✓" : "Copy"}
+                  </button>
+                  <button className="btn-sm btn-primary-sm" onClick={() => savePost(post)}>
+                    {savedPostId === post.id ? "Saved ✓" : "Save"}
+                  </button>
+                  <button className="btn-sm btn-danger-sm" onClick={() => deletePost(post)} disabled={busy}>
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <textarea
+                value={post.body}
+                onChange={(e) => editPostLocal(post.id, { body: e.target.value })}
+                rows={9}
+              />
+            </div>
+          ))
+        )}
       </div>
 
       <div>

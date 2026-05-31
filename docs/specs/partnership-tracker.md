@@ -25,6 +25,8 @@ the 90-day target: one marketer truly engaged.
   next_step, created_at`.
 - `partnership_checks` — `(channel, task)` PK; a row's presence = that playbook move
   is done. `task` is the move's index within the channel.
+- `partnership_posts` — saved outreach posts/templates (`id, title, channel, body,
+  position`); seeded with default drafts on first deploy (only when empty).
 - Playbook content (channels, moves, ground rules, statuses) is **static** in
   `lib/partnerships.ts` (no DB import, so the client can use it).
 
@@ -32,6 +34,9 @@ the 90-day target: one marketer truly engaged.
 
 - **Playbook:** each channel shows its approach + a checklist of moves (with an
   x/total counter). Ticking a move toggles a `partnership_checks` row (optimistic).
+- **Outreach posts:** editable templates (title, channel, body) with **Copy**, Save,
+  Delete, and add. Seeded with ready-to-use drafts (IH story post, hand-picked DM,
+  Reddit value-first approach, X build-in-public thread, growth-community intro).
 - **Prospects:** add (name + channel + link), inline-edit **status** (dropdown) and
   **next step** (text, saved on blur), delete. Inline editing is intentional here —
   it's a working tool, unlike the read-only deals *record* list.

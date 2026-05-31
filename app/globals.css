@@ -383,6 +383,19 @@ footer .version{margin-left:10px;font-size:12px;color:#7c7468;font-family:ui-mon
 .data-table .next-step:hover{border-color:var(--rule)}
 .data-table .next-step:focus{outline:none;border-color:var(--acid);background:var(--ink)}
 @media(max-width:760px){.tracker-channels{grid-template-columns:1fr}}
+.posts-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.posts-head .tracker-h2{margin-bottom:0}
+.posts-hint{font-size:13px;color:var(--bone-dim);margin:8px 0 16px}
+.post-card{border:1px solid var(--rule);border-radius:14px;padding:16px 18px;background:var(--ink-2);margin-bottom:14px}
+.post-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.post-title{flex:1;min-width:180px;background:transparent;border:1px solid transparent;border-radius:8px;padding:6px 8px;color:var(--bone);font-weight:600;font-size:16px;font-family:var(--sans)}
+.post-title:hover{border-color:var(--rule)}
+.post-title:focus{outline:none;border-color:var(--acid);background:var(--ink)}
+.post-channel{width:170px;background:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:6px 10px;color:var(--bone-dim);font-size:13px;font-family:var(--sans)}
+.post-channel:focus{outline:none;border-color:var(--acid)}
+.post-actions{display:flex;gap:6px;margin-left:auto}
+.post-card textarea{width:100%;background:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;color:var(--bone);font-family:var(--sans);font-size:14px;line-height:1.6;resize:vertical;min-height:150px}
+.post-card textarea:focus{outline:none;border-color:var(--acid)}
 
 /* banners (verification, status) */
 .banner{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid var(--rule);border-radius:14px;padding:14px 18px;margin-bottom:20px;font-size:14px;color:var(--bone-dim)}

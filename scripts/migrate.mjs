@@ -294,6 +294,80 @@ try {
     await note("migrate.seed", "Seeded default product (Frockd).");
   }
 
+  // 5. Default outreach posts for the partnership tracker — only when empty.
+  const { rows: ppc } = await client.query(`SELECT COUNT(*)::int AS n FROM partnership_posts`);
+  if (ppc[0].n === 0) {
+    const posts = [
+      {
+        title: "Indie Hackers — studio story post",
+        channel: "Indie Hackers",
+        body: `I ship a new live marketplace roughly every month — and I'm genuinely bad at marketing them. So they sit there, built and working, with almost no audience.
+
+So instead of hiring, I'm trying this: partner with one growth person per product on pure rev-share. You own all of growth, I keep building, and you take a real share of net-new revenue from a clean $0 baseline. No retainer, no equity, and no fee to me — I'm a builder too, so I only make money when the product does, exactly like you.
+
+Two are live right now:
+• Frockd — formal-dress marketplace (AU)
+• an e-bike marketplace
+Both work; both have ~zero audience. The whole game is buyer demand.
+
+If you'd rather own upside than bill hours, and you can look at a marketplace and tell in an hour whether it's winnable — reply here or DM me. I'll open the dashboard and we'll see if it's a fit.`,
+      },
+      {
+        title: "DM — hand-picked growth person",
+        channel: "DM",
+        body: `Hi {name} — {one specific, genuine reference to their work, e.g. "your write-up on growing the demand side of {their product} stuck with me"}.
+
+Quick pitch: I run a small studio that ships live marketplaces and partners with one growth person on each, on rev-share. Right now I've got {product} — live, working, ~zero audience, and it lives or dies on buyer demand.
+
+Terms are simple: you own all of growth, take {30}% of net-new revenue from a $0 baseline, no retainer, no fee to me. I only win when you do.
+
+Worth 20 minutes to look at the numbers and decide if it's winnable for you? No pressure either way.`,
+      },
+      {
+        title: "Reddit — value-first approach (r/SaaS, r/marketing)",
+        channel: "r/SaaS",
+        body: `Don't post an ad — Reddit will nuke it and it burns goodwill. Instead:
+
+1) Find a live thread about marketplace cold-start / demand generation.
+2) Leave a genuinely useful, specific reply from your own experience (no pitch), e.g.:
+   "For two-sided cold-start I'd manufacture one side before spending a cent — pick the constrained side (usually demand) and concierge it: hand-recruit the first buyers/sellers yourself so the marketplace looks alive when real traffic lands."
+3) Check who's sharp in that thread; look at profiles for marketplace / demand experience.
+4) DM the best fit with the hand-picked DM template.
+
+(If a sub has a dedicated promo/partner thread, the studio story post works there — read the rules first.)`,
+      },
+      {
+        title: "X — build-in-public thread",
+        channel: "Build-in-public (X)",
+        body: `A small studio experiment 🧵
+
+I can ship a live marketplace in ~a month. I cannot market them to save my life. So they sit at zero.
+
+New plan: don't hire — partner. One growth person per product, pure rev-share. You own growth, I keep building, you take a real cut of net-new from a $0 baseline. No retainer, no fee to me — I only earn when the product does.
+
+Two live now: a formal-dress marketplace and an e-bike marketplace. Both work, both quiet. The game is buyer demand.
+
+If you're a growth person who wants upside on something real (not another retainer), DM me — I'll show you the numbers and we'll see if it's winnable.`,
+      },
+      {
+        title: "Growth community — intro / offer",
+        channel: "Growth communities (RevGenius, Demand Curve, Slacks)",
+        body: `👋 I run a small studio that ships live marketplaces and partners with one growth specialist on each — rev-share, not retainer.
+
+If marketplace / demand-side growth is your thing and you want a portfolio of upside bets: I've got two live products (a formal-dress marketplace and an e-bike marketplace), $0 revenue baselines (clean attribution), and I keep shipping new ones ~monthly. You own all of growth and take a real share of net-new. No fee to me — I'm a builder, I only win when the product wins.
+
+DM me and I'll walk you through the numbers.`,
+      },
+    ];
+    for (let i = 0; i < posts.length; i++) {
+      await client.query(
+        `INSERT INTO partnership_posts (title, channel, body, position) VALUES ($1, $2, $3, $4)`,
+        [posts[i].title, posts[i].channel, posts[i].body, i]
+      );
+    }
+    await note("migrate.seed", "Seeded default outreach posts.");
+  }
+
   await note("migrate.completed", "Migration finished.");
 } catch (err) {
   console.error("[migrate] Failed:", err);

@@ -108,3 +108,10 @@ export type Prospect = {
   nextStep: string;
   createdAt: string;
 };
+
+export type Post = {
+  id: string;
+  title: string;
+  channel: string;
+  body: string;
+};
