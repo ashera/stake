@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   name              TEXT,                   -- nickname / what they go by
   first_name        TEXT,
   family_name       TEXT,
+  bio               TEXT,                   -- builder bio (shown on /builder/[id])
   password_hash     TEXT,                   -- scrypt; nullable (passwordless leads)
   is_admin          BOOLEAN     NOT NULL DEFAULT false,
   is_builder        BOOLEAN     NOT NULL DEFAULT false,

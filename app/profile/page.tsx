@@ -20,15 +20,19 @@ export default async function ProfilePage() {
   let name = "";
   let firstName = "";
   let familyName = "";
+  let bio = "";
+  let isBuilder = false;
   const pool = getPool();
   if (pool) {
     const { rows } = await pool.query(
-      `SELECT name, first_name, family_name FROM users WHERE id = $1`,
+      `SELECT name, first_name, family_name, bio, is_builder FROM users WHERE id = $1`,
       [user.id]
     );
     name = rows[0]?.name ?? "";
     firstName = rows[0]?.first_name ?? "";
     familyName = rows[0]?.family_name ?? "";
+    bio = rows[0]?.bio ?? "";
+    isBuilder = rows[0]?.is_builder ?? false;
   }
 
   return (
@@ -51,6 +55,8 @@ export default async function ProfilePage() {
             initialName={name}
             initialFirstName={firstName}
             initialFamilyName={familyName}
+            initialBio={bio}
+            isBuilder={isBuilder}
             email={user.email}
             verified={user.emailVerified}
           />

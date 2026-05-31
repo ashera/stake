@@ -196,6 +196,7 @@ try {
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name TEXT`);
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS family_name TEXT`);
   await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_builder BOOLEAN NOT NULL DEFAULT false`);
+  await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT`);
 
   // 1f. Retire the legacy applications table: fold each application into a
   //     passwordless user + a product-less deal, then drop it. Guarded on the

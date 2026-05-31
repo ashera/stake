@@ -1,7 +1,7 @@
 import { getPool } from "@/lib/db";
 
 export type BuilderOption = { id: string; label: string };
-export type BuilderProfile = { id: string; name: string };
+export type BuilderProfile = { id: string; name: string; bio: string };
 
 type UserNameRow = {
   id: number | string;
@@ -9,6 +9,7 @@ type UserNameRow = {
   first_name: string | null;
   family_name: string | null;
   email: string;
+  bio?: string | null;
 };
 
 // Admin-facing label: nickname → "First Family" → email (email ok internally).
@@ -44,13 +45,13 @@ export async function getBuilderProfile(id: string): Promise<BuilderProfile | nu
   if (!pool) return null;
   try {
     const { rows } = await pool.query(
-      `SELECT id, name, first_name, family_name, email FROM users
+      `SELECT id, name, first_name, family_name, email, bio FROM users
         WHERE id = $1 AND is_builder = true`,
       [id]
     );
     if (rows.length === 0) return null;
     const r = rows[0] as UserNameRow;
-    return { id: String(r.id), name: publicName(r) || "A builder" };
+    return { id: String(r.id), name: publicName(r) || "A builder", bio: (r.bio || "").trim() };
   } catch {
     return null;
   }

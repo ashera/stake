@@ -21,6 +21,7 @@ export default async function BuilderPage({ params }: { params: { id: string } }
       <section className="deal-page">
         <div className="eyebrow">Builder</div>
         <h1>{builder.name}</h1>
+        {builder.bio && <p className="builder-bio">{builder.bio}</p>}
         {products.length > 0 ? (
           <>
             <p className="sub">Live opportunities {builder.name} has built.</p>
