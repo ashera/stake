@@ -7,7 +7,9 @@
 ## Summary
 
 Managed dropdown options for the four product attributes (Stage, mandate, lever,
-deal). Each option carries an explanatory **description** that renders under the
+deal). Note: the `lever` category is labelled **"Key challenge"** in the UI
+(`REF_CATEGORIES` in `lib/reference.ts`); the data key stays `lever`. Each option
+carries an explanatory **description** that renders under the
 value on the product card, so visitors understand what the attribute means.
 
 ## Goals / Non-goals

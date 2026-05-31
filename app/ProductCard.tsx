@@ -8,7 +8,7 @@ export default function ProductCard({ product: p }: { product: ProductDisplay })
   const meta: [string, { label: string; description: string }][] = [
     ["Stage", p.stage],
     ["Your mandate", p.mandate],
-    ["The lever", p.lever],
+    ["Key challenge", p.lever],
     ["Deal", p.deal],
   ];
 

@@ -6,7 +6,7 @@ import { getPool } from "@/lib/db";
 export const REF_CATEGORIES = [
   { key: "stage", label: "Stage" },
   { key: "mandate", label: "Your mandate" },
-  { key: "lever", label: "The lever" },
+  { key: "lever", label: "Key challenge" },
   { key: "deal", label: "Deal" },
 ] as const;
 

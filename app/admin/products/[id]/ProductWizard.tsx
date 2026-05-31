@@ -279,7 +279,7 @@ export default function ProductWizard({
               <AttrSelect label="Your mandate" value={form.mandateId} options={options.mandate} onChange={(v) => set("mandateId", v)} />
             </div>
             <div className="row2">
-              <AttrSelect label="The lever" value={form.leverId} options={options.lever} onChange={(v) => set("leverId", v)} />
+              <AttrSelect label="Key challenge" value={form.leverId} options={options.lever} onChange={(v) => set("leverId", v)} />
               <AttrSelect label="Deal" value={form.dealId} options={options.deal} onChange={(v) => set("dealId", v)} />
             </div>
           </div>
