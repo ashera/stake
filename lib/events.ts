@@ -54,7 +54,7 @@ export async function getEvents(limit = 200): Promise<AppEvent[]> {
       type: r.type,
       message: r.message,
       meta: r.meta,
-      createdAt: String(r.created_at),
+      createdAt: new Date(r.created_at).toISOString(),
     }));
   } catch {
     return [];

@@ -1,4 +1,5 @@
 import { getEvents } from "@/lib/events";
+import LocalDateTime from "./LocalDateTime";
 
 export const dynamic = "force-dynamic";
 
@@ -32,12 +33,7 @@ export default async function AdminEvents() {
             {events.map((e) => (
               <tr key={e.id}>
                 <td className="muted">
-                  {new Date(e.createdAt).toLocaleString("en-AU", {
-                    day: "numeric",
-                    month: "short",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  <LocalDateTime iso={e.createdAt} />
                 </td>
                 <td>
                   <span className={`pill lvl lvl-${e.level}`}>{e.level}</span>
