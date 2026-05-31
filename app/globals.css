@@ -154,6 +154,7 @@ section.how{padding:90px 0}
 .note{font-size:13px;color:#7c7468;margin-top:14px;line-height:1.5}
 
 footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+footer .version{margin-left:10px;font-size:12px;color:#7c7468;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px}
 
 @media(max-width:820px){
   .strip-grid,.steps,.deal,.opp-body,.row2{grid-template-columns:1fr}
