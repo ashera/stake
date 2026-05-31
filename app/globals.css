@@ -85,7 +85,8 @@ section.how{padding:90px 0}
 .term .v small{font-family:var(--sans);font-size:13px;color:var(--bone-dim)}
 
 /* compact hero on the home page so the featured opportunity sits above the fold */
-.home-hero{padding:34px 0 22px}
+.home-hero{padding:34px 0 22px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.home-hero-img{width:100%;height:auto;border-radius:18px;opacity:0;animation:rise .8s .15s forwards}
 .home-hero .eyebrow{margin-bottom:14px}
 .home-hero h1{font-size:clamp(31px,4.8vw,52px);line-height:1.05}
 .home-hero .sub{margin-top:14px;font-size:clamp(16px,1.8vw,19px);max-width:52ch}
@@ -150,6 +151,8 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
   .strip-grid,.steps,.deal,.opp-body,.row2{grid-template-columns:1fr}
   .deal{padding:32px}.form-card{padding:30px}
   header{padding:60px 0 50px}
+  .home-hero{grid-template-columns:1fr;padding:34px 0 22px}
+  .home-hero-img{display:none}
 }
 
 /* ── Auth / login ───────────────────────────────────────────────────────── */
