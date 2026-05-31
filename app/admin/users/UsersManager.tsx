@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export type ManagedUser = {
@@ -47,44 +48,6 @@ export default function UsersManager({
       setError(err instanceof Error ? err.message : "Couldn't create the user.");
     } finally {
       setStatus("idle");
-    }
-  }
-
-  async function setAdmin(user: ManagedUser, isAdmin: boolean) {
-    setError("");
-    setBusyId(user.id);
-    try {
-      const res = await fetch(`/api/admin/users/${user.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isAdmin }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't update the user.");
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't update the user.");
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  async function setBuilder(user: ManagedUser, isBuilder: boolean) {
-    setError("");
-    setBusyId(user.id);
-    try {
-      const res = await fetch(`/api/admin/users/${user.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isBuilder }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't update the user.");
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't update the user.");
-    } finally {
-      setBusyId(null);
     }
   }
 
@@ -186,33 +149,9 @@ export default function UsersManager({
                   })}
                 </td>
                 <td className="ta-right actions">
-                  {u.isAdmin ? (
-                    <button
-                      className="btn-sm btn-ghost-sm"
-                      onClick={() => setAdmin(u, false)}
-                      disabled={busy || isMe}
-                      title={isMe ? "You can't change your own role" : "Remove admin access"}
-                    >
-                      Make user
-                    </button>
-                  ) : (
-                    <button
-                      className="btn-sm btn-ghost-sm"
-                      onClick={() => setAdmin(u, true)}
-                      disabled={busy}
-                    >
-                      Make admin
-                    </button>
-                  )}
-                  {u.isBuilder ? (
-                    <button className="btn-sm btn-ghost-sm" onClick={() => setBuilder(u, false)} disabled={busy}>
-                      Unset builder
-                    </button>
-                  ) : (
-                    <button className="btn-sm btn-ghost-sm" onClick={() => setBuilder(u, true)} disabled={busy}>
-                      Make builder
-                    </button>
-                  )}
+                  <Link className="btn-sm btn-ghost-sm" href={`/admin/users/${u.id}`}>
+                    Edit
+                  </Link>
                   <button
                     className="btn-sm btn-danger-sm"
                     onClick={() => removeUser(u)}

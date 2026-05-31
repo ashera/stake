@@ -42,9 +42,12 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
   (the last two drive the "set a password" and "verify your email" prompts).
 - **Protection:** `app/admin/layout.tsx` calls `getCurrentUser()` and redirects
   non-admins to `/login`. Every admin API re-checks `getAdmin()` (defence in depth).
-- **User management** (`/admin/users`): list, add user (email + password +
-  admin/builder flags), promote/demote, flag/unflag **builder**, delete.
-  Guardrails: can't demote or delete yourself, and can't remove the last admin.
+- **User management** (`/admin/users`): a table of users (email, roles, added) with
+  add-user, **Edit**, and delete. Editing opens `/admin/users/[id]` (`UserEditForm`)
+  to change email, nickname, first/family name, builder bio, the admin + builder
+  flags, and optionally set a new password (`PATCH /api/admin/users/[id]`).
+  Guardrails: can't remove your own admin (the checkbox is disabled), can't remove
+  the last admin, can't delete yourself; duplicate email → 409.
 - **Builders:** a user with `is_builder` can be assigned to a product (the product
   wizard's builder dropdown) and gets a public profile at `/builder/[id]` showing
   their `bio` + the opportunities they've built. Builders edit their **bio** on

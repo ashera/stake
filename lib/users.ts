@@ -2,6 +2,16 @@ import { getPool } from "@/lib/db";
 
 export type BuilderOption = { id: string; label: string };
 export type BuilderProfile = { id: string; name: string; bio: string };
+export type AdminUserEdit = {
+  id: string;
+  email: string;
+  name: string;
+  firstName: string;
+  familyName: string;
+  bio: string;
+  isAdmin: boolean;
+  isBuilder: boolean;
+};
 
 type UserNameRow = {
   id: number | string;
@@ -36,6 +46,33 @@ export async function getBuilders(): Promise<BuilderOption[]> {
     return (rows as UserNameRow[]).map((r) => ({ id: String(r.id), label: adminLabel(r) }));
   } catch {
     return [];
+  }
+}
+
+// A single user for the admin edit page.
+export async function getUserForAdmin(id: string): Promise<AdminUserEdit | null> {
+  const pool = getPool();
+  if (!pool) return null;
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, email, name, first_name, family_name, bio, is_admin, is_builder
+         FROM users WHERE id = $1`,
+      [id]
+    );
+    if (rows.length === 0) return null;
+    const r = rows[0];
+    return {
+      id: String(r.id),
+      email: r.email,
+      name: r.name ?? "",
+      firstName: r.first_name ?? "",
+      familyName: r.family_name ?? "",
+      bio: r.bio ?? "",
+      isAdmin: r.is_admin,
+      isBuilder: r.is_builder,
+    };
+  } catch {
+    return null;
   }
 }
 
