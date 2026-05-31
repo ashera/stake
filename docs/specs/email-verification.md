@@ -28,7 +28,8 @@ don't block the apply flow on it.
 
 - **Sending** (`lib/email.ts`): `sendEmail` posts to Resend's HTTP API when
   `RESEND_API_KEY` is set; otherwise it **logs the message/link to the console** so
-  the flow works in dev / before setup. `EMAIL_FROM` sets the sender; `APP_URL`
+  the flow works in dev / before setup. `RESEND_FROM` sets the sender (must be on
+  a domain verified in Resend); `APP_URL`
   (or the request host) builds absolute links.
 - **On deal submit** (`/api/deals`): for a new or unverified passwordless lead, a
   token is created and a verification email sent (best-effort — never blocks the

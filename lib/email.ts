@@ -18,7 +18,7 @@ export function baseUrl(req: Request): string {
 
 export async function sendEmail({ to, subject, html, text }: SendArgs): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM || "Traxn <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM || process.env.EMAIL_FROM || "Traxn <onboarding@resend.dev>";
 
   if (!key) {
     await logEvent({
