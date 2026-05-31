@@ -5,7 +5,7 @@ import { getDealById } from "@/lib/deals";
 import SiteNav from "../../SiteNav";
 import SiteFooter from "../../SiteFooter";
 import VerifyBanner from "../../VerifyBanner";
-import SetPasswordForm from "./SetPasswordForm";
+import SetPasswordForm from "../../SetPasswordForm";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Traxn — your deal" };

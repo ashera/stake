@@ -121,6 +121,7 @@ section.how{padding:90px 0}
   padding:14px 16px;color:var(--bone);font-family:var(--sans);font-size:16px;transition:border-color .2s
 }
 .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--acid)}
+.field input:disabled{opacity:.55;cursor:not-allowed}
 .field textarea{resize:vertical;min-height:92px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
 .submit{width:100%;background:var(--acid);color:var(--ink);border:none;border-radius:44px;padding:17px;font-size:17px;font-weight:700;cursor:pointer;margin-top:8px;transition:transform .2s,box-shadow .2s}
@@ -282,8 +283,8 @@ footer{border-top:1px solid var(--rule);padding:40px 0;color:var(--bone-dim);fon
 .deal-title h1{font-family:var(--serif);font-weight:400;font-size:clamp(28px,5vw,44px);letter-spacing:-1px}
 .deal-page .sub{color:var(--bone-dim);margin:10px 0 26px}
 .deal-card{background:var(--ink-2);border:1px solid var(--rule);border-radius:18px;padding:26px 30px;margin-bottom:20px}
-.deal-card.secure h3{font-size:18px;font-weight:600;margin-bottom:8px}
-.deal-card.secure p{color:var(--bone-dim);font-size:15px;margin-bottom:16px}
+.deal-card h3{font-size:18px;font-weight:600;margin-bottom:8px}
+.deal-card p{color:var(--bone-dim);font-size:15px;margin-bottom:16px}
 .secure-form{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
 .secure-form .field{margin-bottom:0;flex:1;min-width:220px}
 .pill-status{background:rgba(198,242,78,.12);border-color:rgba(198,242,78,.35);color:var(--acid);text-transform:capitalize}

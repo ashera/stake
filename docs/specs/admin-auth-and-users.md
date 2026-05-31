@@ -44,6 +44,11 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 - **User management** (`/admin/users`): list, add user (email + password +
   admin flag), promote/demote, delete. Guardrails: can't demote or delete
   yourself, and can't remove the last admin.
+- **Profile** (`/profile`): any signed-in user manages their own account — edit
+  name (`PATCH /api/profile`), set/change password (`SetPasswordForm`), and see
+  verification status (with resend). The nav links a marketer's email here (admins
+  to `/admin`, with a Profile link in the admin nav); profile links to "Your deals"
+  and, for admins, the dashboard.
 - **Bootstrapping:** `npm run create-admin -- <email> <password>` (manual), or the
   `ADMIN_EMAIL`/`ADMIN_PASSWORD` env seed on deploy (see
   [deploy-and-migrations](./deploy-and-migrations.md)).
@@ -55,8 +60,9 @@ express-interest wizard (see [deals](./deals.md)), who may be **passwordless**.
 - `POST /api/auth/login` — `{ email, password }`; sets session cookie. Returns the
   **same** error for unknown email vs wrong password (non-enumerating).
 - `POST /api/auth/logout` — clears the session.
-- `POST /api/auth/set-password` — `{ password }` for the signed-in user (used by
-  marketer leads to secure a passwordless account).
+- `POST /api/auth/set-password` — `{ password }` for the signed-in user (set or
+  change; used by the profile page and the deal-page prompt).
+- `PATCH /api/profile` — `{ name }` for the signed-in user.
 - Email verification + magic-link endpoints (`/verify-email`, `/api/auth/magic-link`,
   `/api/auth/resend-verification`) — see [email-verification](./email-verification.md).
 - `POST /api/admin/users` — create `{ email, password, isAdmin }` (409 on dup email).

@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function SetPasswordForm() {
+// Set or change the signed-in user's password. `hasPassword` switches the copy
+// between first-time set and change.
+export default function SetPasswordForm({ hasPassword = false }: { hasPassword?: boolean }) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
@@ -24,23 +26,27 @@ export default function SetPasswordForm() {
         body: JSON.stringify({ password }),
       });
       const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't set your password.");
+      if (!res.ok || !data.ok) throw new Error(data.error || "Couldn't save your password.");
       setStatus("done");
-      router.refresh(); // hide this prompt now that a password exists
+      router.refresh();
     } catch (err) {
       setStatus("idle");
-      setError(err instanceof Error ? err.message : "Couldn't set your password.");
+      setError(err instanceof Error ? err.message : "Couldn't save your password.");
     }
   }
 
   if (status === "done") {
-    return <p className="note">Password set — you can log in any time with your email.</p>;
+    return (
+      <p className="note">
+        {hasPassword ? "Password updated." : "Password set — you can log in any time with your email."}
+      </p>
+    );
   }
 
   return (
     <form className="secure-form" onSubmit={submit}>
       <div className="field">
-        <label>Choose a password</label>
+        <label>{hasPassword ? "New password" : "Choose a password"}</label>
         <input
           type="password"
           value={password}
@@ -50,7 +56,7 @@ export default function SetPasswordForm() {
         />
       </div>
       <button className="btn-sm btn-primary-sm" type="submit" disabled={status === "sending"}>
-        {status === "sending" ? "Saving…" : "Set password"}
+        {status === "sending" ? "Saving…" : hasPassword ? "Update password" : "Set password"}
       </button>
       {error && <p className="err">{error}</p>}
     </form>
