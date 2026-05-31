@@ -21,15 +21,6 @@ export default async function Home() {
           of every dollar you bring in. No retainer, no equity gamble — just upside on something real.
         </p>
         <div className="hero-cta">
-          {featured?.id ? (
-            <Link className="btn btn-primary" href={`/express-interest/${featured.id}`}>
-              Take a shot →
-            </Link>
-          ) : (
-            <Link className="btn btn-primary" href="/how-it-works#opportunities">
-              See opportunities →
-            </Link>
-          )}
           <Link className="btn btn-ghost" href="/how-it-works">
             How it works
           </Link>
